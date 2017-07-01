@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/dashboard"
+            android:title="DashBoard"
+            />
+        <item
+            android:id="@+id/nav_camera"
+            android:title="Activities"
+            android:icon="@drawable/drop_down_2"
+            />
+        <item
+            android:id="@+id/statistics"
+            android:title="Statistics" />
+        <item
+            android:id="@+id/location_history"
+            android:title="Location History" />
+        <item
+            android:id="@+id/nav_manage"
+            android:icon="@drawable/drop_down_2"
+            android:title="Report" />
+        <item
+            android:id="@+id/nav_share"
+            android:title="Alert" />
+        <item
+            android:id="@+id/nav_send"
+            android:title="Setting" />
+
+        <item
+            android:id="@+id/nav_sign_up"
+            android:title="Sign Up" />
+
+    </group>
+
+    -->
+
+</menu>

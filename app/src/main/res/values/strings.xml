@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Project_Fretron</string>
+    <string name="app_activity_accessPortal_text_1">Enter your Mobile No.</string>
+    <string name="title_activity_dash_board">DashBoard</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings" translatable="false">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Main DashBoard Fragment</string>
+    <string name="hello_statistics_fragment">Statistics Fragment</string>
+    <string name="hello_location_fragment">Choose the vehicle to \nsee its timeline</string>
+    <string name="hello_active_fragment">Active vehicles</string>
+    <string name="report_running_fragment">Running vehicles</string>
+    <string name="report_overspeed_fragment">Overspeeding vehicles</string>
+    <string name="report_stopped_fragment">Stopped vehicles</string>
+    <string name="nav_header_1">Activities</string>
+    <string name="nav_header_2">Statistics</string>
+    <string name="nav_header_3">Location History</string>
+    <string name="nav_header_4">Report</string>
+    <string name="nav_header_5">Alert</string>
+    <string name="nav_header_6">Settings</string>
+    <string name="nav_header_7">Sign up</string>
+
+    <string-array name="CountryCodes">
+        <item>91,IN</item>
+    </string-array>
+
+    <string-array name="item">
+        <item>91,IN</item>
+    </string-array>
+
+    <string-array name="vehicle_status">
+        <item>All Vehicles</item>
+        <item>Active Vehicles</item>
+        <item>Offline Vehicles</item>
+        <item>Stopped Vehicles</item>
+    </string-array>
+
+
+</resources>

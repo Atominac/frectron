@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.sample.project_frectron.DashMainFragment"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <!-- TODO: Update blank fragment layout -->
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:id="@+id/relative_1"
+            android:layout_marginTop="8dp">
+
+            <Spinner
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
+                android:id="@+id/select_status"
+                android:textSize="18sp">
+            </Spinner>
+
+            <Switch
+                android:id="@+id/switch1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Map view"
+                android:textSize="18sp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="13dp" />
+
+        </RelativeLayout>
+
+        <ViewFlipper
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:id="@+id/viewFlipper2">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:clipToPadding="false"
+                android:padding="3dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp">
+
+                <com.google.android.gms.maps.MapView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.MapFragment">
+
+                </com.google.android.gms.maps.MapView>
+
+            </LinearLayout>
+
+
+        </ViewFlipper>
+
+    <ProgressBar
+        android:id="@+id/progressBar_Activity"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        android:layout_marginTop="200dp"/>
+
+</LinearLayout>
