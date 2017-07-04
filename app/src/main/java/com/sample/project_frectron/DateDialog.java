@@ -20,10 +20,10 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.List;
 
-public class DateReportRunningEndDateButton extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+public class DateDialog extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
 
-    public DateReportRunningEndDateButton() {
+    public DateDialog() {
         // Required empty public constructor
     }
 
@@ -34,8 +34,6 @@ public class DateReportRunningEndDateButton extends DialogFragment implements Da
         int yy = calendar.get(Calendar.YEAR);
         int mm = calendar.get(Calendar.MONTH);
         int dd = calendar.get(Calendar.DAY_OF_MONTH);
-        int hrs = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
         return new DatePickerDialog(getActivity(), this, yy, mm, dd);
     }
 
@@ -46,7 +44,7 @@ public class DateReportRunningEndDateButton extends DialogFragment implements Da
     }
 
     public void populateSetDate(int year, int month, int day) {
-        Button button = (Button)getActivity().findViewById(R.id.end_date_button);
+        Button button = (Button)getActivity().findViewById(R.id.location_date_selector_button);
         button.setText(day+"/"+month+"/"+year);
     }
 

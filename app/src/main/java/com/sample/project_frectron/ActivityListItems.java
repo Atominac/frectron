@@ -1,20 +1,21 @@
 package com.sample.project_frectron;
 
 public class ActivityListItems {
-    private String title, speed, starting_date,location,status,starting_time;
+    private String title, speed, starting_date,location,status,starting_time,vtsDeviceId;
 
     public  ActivityListItems() {
     }
 
         public ActivityListItems(String title, String speed,
                                  String starting_date,String location,
-                                 String status,String starting_time) {
+                                 String status,String starting_time , String vtsDeviceId ) {
             this.title = title;
             this.speed = speed;
             this.starting_date = starting_date;
             this.location = location;
             this.status = status;
             this.starting_time = starting_time;
+            this.vtsDeviceId = vtsDeviceId ;
         }
 
         public String getTitle() {
@@ -63,6 +64,15 @@ public class ActivityListItems {
 
         public void setStarting_time(String starting_time) {
         this.starting_time = starting_time;
+    }
+
+
+        public String getVtsDeviceId() {
+        return vtsDeviceId;
+    }
+
+        public void setVtsDeviceId(String vtsDeviceId) {
+        this.vtsDeviceId = vtsDeviceId;
     }
 }
 

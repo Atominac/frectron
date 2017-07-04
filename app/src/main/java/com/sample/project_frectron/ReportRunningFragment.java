@@ -246,7 +246,6 @@ public class ReportRunningFragment extends Fragment implements View.OnClickListe
                             //list.add("123");
                             list.add("1234");
 
-
                             // JSON CALL STARTS HERE
                             makeJsonObjectRequest(start_date_epo, end_date_epo, list);
                             // List Loading starts from here
@@ -335,8 +334,8 @@ public class ReportRunningFragment extends Fragment implements View.OnClickListe
         showpProgress();
 
         String urlJsonArray = "http://35.189.189.215:8094/runningReport";
-        BigInteger bi1 =  new BigInteger("1496485983096");
-        BigInteger bi2 =  new BigInteger("1497695588750");
+        BigInteger bi1 =  new BigInteger(startTime);
+        BigInteger bi2 =  new BigInteger(endTime);
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put( "startTime", bi1 );
