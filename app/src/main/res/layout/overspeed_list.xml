@@ -5,13 +5,14 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp">
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp">
 
     <android.support.v7.widget.CardView
         android:id="@+id/card_view_2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -26,49 +27,44 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp">
-
+                    android:background="@color/colorAccent"
+                    android:padding="5dp">
 
                     <TextView
                         android:id="@+id/textView_vehicle_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
-                        android:gravity="center"
                         android:text="TR1084"
+                        android:layout_marginStart="10dp"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="#ffffff"/>
 
                     <TextView
                         android:id="@+id/textView_vehicle_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:gravity="center"
                         android:text="Total : 32 min"
-                        android:textSize="18sp"
-                        android:textStyle="normal" />
+                        android:textSize="16sp"
+                        android:layout_marginEnd="10dp"
+                        android:textStyle="normal"
+                        android:textColor="#ffffff"/>
 
                     <TextView
                         android:id="@+id/textView_vehicle_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop="20dp"
-                        android:gravity="center"
+                        android:layout_marginTop="25dp"
                         android:text="6 Kms"
-                        android:textSize="18sp"
-                        android:textStyle="normal" />
+                        android:layout_marginEnd="10dp"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:textColor="#ffffff"/>
 
                 </RelativeLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#C0C0C0" />
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"

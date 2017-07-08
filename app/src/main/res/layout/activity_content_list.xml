@@ -79,7 +79,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:orientation="vertical">
@@ -102,23 +102,25 @@
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp" />
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom|end">
+
+                    <Button
+                        android:id="@+id/view_timeline_button"
+                        android:layout_width="40dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/custom_button2"
+                        android:text="View"
+                        android:textColor="#ffffff"
+                        android:textSize="12sp" />
+
+                </RelativeLayout>
+
             </LinearLayout>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom|end">
 
-                <Button
-                    android:id="@+id/view_timeline_button"
-                    android:layout_width="40dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/custom_button2"
-                    android:text="View"
-                    android:textColor="#ffffff"
-                    android:textSize="12sp" />
-
-            </RelativeLayout>
 
         </LinearLayout>
 

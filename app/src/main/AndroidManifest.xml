@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sample.project_frectron">
+    package="com.fretron.fleet">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -17,14 +17,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".VolleyMain">
+        android:name="com.fretron.fleet.VolleyMain">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCRBFNhBS2Dx8BIgoQeHfpUMHkLySqgetc " />
 
         <activity
-            android:name=".Phone_no"
+            android:name="com.fretron.fleet.login.Phone_no"
             android:label="Access Portal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,17 +33,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DashBoard"
+            android:name="com.fretron.fleet.dashboard.DashBoard"
             android:label="@string/title_activity_dash_board"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="com.sample.project_frectron.DashBoard" />
+                <action android:name="com.fretron.fleet.dashboard.DashBoard" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <receiver android:name=".SmsReceiver"
+        <receiver android:name="com.fretron.fleet.SmsReceiver"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>

@@ -31,7 +31,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="4dp"
-            android:background="#C0C0C0"
+            android:background="@color/colorPrimaryDark"
             android:layout_marginTop="25dp"
             />
 
@@ -41,11 +41,11 @@
             android:layout_height="50dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/circleprev"
+            android:background="@drawable/textview_design"
             android:gravity="center_vertical|center_horizontal"
             android:text="60\nKmph"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
     </RelativeLayout>
