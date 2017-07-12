@@ -10,6 +10,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -87,6 +88,7 @@ public class HorizontalVehicleListAdapter  extends RecyclerView.Adapter<Horizont
                     } while (fragment.c2.moveToNext());
                 }
                 fragment.c2.close();
+
                 fragment.makeJsonObjectRequest(fragment.start_date_epo,
                         fragment.end_date_epo,fragment.list);
             }

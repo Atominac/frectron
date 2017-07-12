@@ -1,13 +1,14 @@
 package com.fretron.fleet;
 
 public class OverspeedingChildListDetails {
-    private String title, speed, distance;
+    private String title, speed, distance,location;
 
 
-    public OverspeedingChildListDetails(String title, String speed, String distance) {
+    public OverspeedingChildListDetails(String title, String speed, String distance, String location) {
         this.title = title;
         this.speed = speed;
         this.distance = distance;
+        this.location = location ;
     }
 
     public String getTitle() {
@@ -32,5 +33,13 @@ public class OverspeedingChildListDetails {
 
     public void setDistance(String distance) {
         this.distance = distance;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

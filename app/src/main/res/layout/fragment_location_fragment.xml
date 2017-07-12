@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,12 +14,12 @@
         android:gravity="center"/>
 
     <ListView
-                android:id="@+id/location_vehicle_name_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:clipToPadding="false"
-                android:layout_marginTop="10dp"
-                android:padding="5dp" />
+        android:id="@+id/location_vehicle_name_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:clipToPadding="false"
+        android:layout_marginTop="10dp"
+        android:padding="5dp" />
 
 </LinearLayout>

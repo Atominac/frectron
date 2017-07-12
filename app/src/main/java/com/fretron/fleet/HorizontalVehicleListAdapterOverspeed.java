@@ -62,8 +62,8 @@ public class HorizontalVehicleListAdapterOverspeed  extends RecyclerView.Adapter
             public void onClick(View view) {
                 fragment.parentItemList.clear();
                 fragment.mAdapter.notifyDataSetChanged();
-//                fragment.total_records = 0 ;
-//                fragment.total_distance = 0.0;
+                fragment.total_records = 0 ;
+                fragment.total_distance = 0.0;
                 String itemLabel = mDataSet.get(holder.getAdapterPosition());
                 fragment.selected_vehicles.remove(holder.getAdapterPosition());
                 mDataSet.remove(holder.getAdapterPosition());

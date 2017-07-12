@@ -15,7 +15,6 @@ import java.util.Random;
 public class HorizontalVehicleListAdapterStopped  extends RecyclerView.Adapter<HorizontalVehicleListAdapterStopped.ViewHolder>{
     private List<String> mDataSet;
     private Context mContext;
-    private Random mRandom = new Random();
     private ReportStoppedFragment fragment;
 
 
@@ -59,10 +58,10 @@ public class HorizontalVehicleListAdapterStopped  extends RecyclerView.Adapter<H
         holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.parentItemList.clear();
+                fragment.stoppageParentItemList.clear();
                 fragment.mAdapter.notifyDataSetChanged();
-//                fragment.total_records = 0 ;
-//                fragment.total_distance = 0.0;
+                fragment.total_records = 0 ;
+                fragment.netTime = 0.0;
                 String itemLabel = mDataSet.get(holder.getAdapterPosition());
                 fragment.selected_vehicles.remove(holder.getAdapterPosition());
                 mDataSet.remove(holder.getAdapterPosition());

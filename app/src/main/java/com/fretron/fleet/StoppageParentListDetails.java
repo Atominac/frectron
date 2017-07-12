@@ -3,16 +3,15 @@ package com.fretron.fleet;
 import java.util.ArrayList;
 
 public class StoppageParentListDetails {
-    private String title, speed, distance;
+    private String title, time;
     public ArrayList<StoppageChildListDetails> childListDetailses;
 
     public  StoppageParentListDetails() {
     }
 
-    public StoppageParentListDetails(String title, String speed, String distance , ArrayList<StoppageChildListDetails> childListDetailses) {
+    public StoppageParentListDetails(String title, String time , ArrayList<StoppageChildListDetails> childListDetailses) {
         this.title = title;
-        this.speed = speed;
-        this.distance = distance;
+        this.time = time;
         this.childListDetailses = childListDetailses;
     }
 
@@ -24,19 +23,12 @@ public class StoppageParentListDetails {
         this.title = name;
     }
 
-    public String getSpeed() {
-        return speed;
+    public String getTime() {
+        return time;
     }
 
-    public void setSpeed(String speed) {
-        this.speed = speed;
+    public void setTime(String time) {
+        this.time = time;
     }
 
-    public String getDistance() {
-        return distance;
-    }
-
-    public void setDistance(String distance) {
-        this.distance = distance;
-    }
 }

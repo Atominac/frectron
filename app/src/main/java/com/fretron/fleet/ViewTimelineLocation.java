@@ -175,29 +175,9 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onClick(View view) {
                 DateDialog pickerFrag = new DateDialog(ViewTimelineLocation.this);
-               // pickerFrag.setCallback(mFragmentCallback2);
                 pickerFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
                 pickerFrag.show(getFragmentManager(), "DATE_PICKER");
-//                String string = button.getText().toString();
-//                String[] parts = string.split("/");
-//                int date = Integer.parseInt(parts[0]);
-//                int month = Integer.parseInt(parts[1]);
-//                int year = Integer.parseInt(parts[2]);
-//               // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
-//
-//                Calendar calendar = Calendar.getInstance();
-//                calendar.setTimeZone(TimeZone.getDefault());
-//                calendar.set(year, month, date, 0,0,0);
-//                long startTime = calendar.getTimeInMillis();
-//                String selected_startTime = Long.toString(startTime);
-//
-//                Calendar calendar2 = Calendar.getInstance();
-//                calendar.setTimeZone(TimeZone.getDefault());
-//                calendar2.set(mYear, mMonth, mDay, 23,59, 59);
-//                long endTime = calendar2.getTimeInMillis();
-//                String selected_endTime = Long.toString(endTime);
-//
-//                makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
+
 
             }
         });

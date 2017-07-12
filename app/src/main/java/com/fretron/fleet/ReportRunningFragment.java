@@ -41,8 +41,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.android.gms.plus.internal.PlusCommonExtras.TAG;
 
@@ -250,15 +252,21 @@ public class ReportRunningFragment extends Fragment implements View.OnClickListe
                             }
                             c2.close();
 
+                            Set<String> hs = new HashSet<>();
+                            hs.addAll(list);
+                            list.clear();
+                            list.addAll(hs);
+
+                            if (activityList != null){
+                                activityList.clear();
+                                runningAdapter = new RunningReportListAdapter(activityList);
+                                runningAdapter.notifyDataSetChanged();
+                                total_records = 0 ;
+                            }
+
                             // JSON CALL STARTS HERE
                             makeJsonObjectRequest(start_date_epo, end_date_epo, list);
                             // List Loading starts from here
-                            runningAdapter = new RunningReportListAdapter(activityList);
-                            LinearLayoutManager layoutManager2
-                                    = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                            recyclerView.setLayoutManager(layoutManager2);
-                            recyclerView.setItemAnimator(new DefaultItemAnimator());
-                            recyclerView.setAdapter(runningAdapter);
 
                         }
 
@@ -400,6 +408,12 @@ public class ReportRunningFragment extends Fragment implements View.OnClickListe
                 netRecord = recordValue + record ;
                 textViewTotalRecords.setText(netRecord);
                 textViewTotalDistance.setText(String.valueOf(Math.round(total_distance * 100.0) / 100.0));
+                runningAdapter = new RunningReportListAdapter(activityList);
+                LinearLayoutManager layoutManager2
+                        = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+                recyclerView.setLayoutManager(layoutManager2);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setAdapter(runningAdapter);
 
                 hidepProgress();
             }

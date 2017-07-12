@@ -1,6 +1,5 @@
 package com.fretron.fleet;
 
-
 import java.util.ArrayList;
 
 public class OverspeedParentListDetails {

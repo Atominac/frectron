@@ -24,16 +24,15 @@ public class StoppageParentAdapter extends RecyclerView.Adapter<StoppageParentAd
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, speed, distance;
+        public TextView title, time;
         public RecyclerView recyclerView;
 
         public MyViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.textView_vehicle_name);
-            speed = (TextView) view.findViewById(R.id.textView_vehicle_time);
-            distance = (TextView) view.findViewById(R.id.textView_vehicle_distance);
+            time = (TextView) view.findViewById(R.id.textView_vehicle_time);
             recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView_stoppage_sub_list);
-            OverspeedChildAdapter nAdapter = new OverspeedChildAdapter();
+            StoppageChildAdapter nAdapter = new StoppageChildAdapter();
             recyclerView.setAdapter(nAdapter);
             LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             recyclerView.setLayoutManager(layoutManager);
@@ -52,8 +51,7 @@ public class StoppageParentAdapter extends RecyclerView.Adapter<StoppageParentAd
 
         StoppageParentListDetails activityListItems = activityList.get(position);
         holder.title.setText(activityListItems.getTitle());
-        holder.distance.setText(activityListItems.getDistance());
-        holder.speed.setText(activityListItems.getSpeed());
+        holder.time.setText(activityListItems.getTime());
 
         ((StoppageChildAdapter)holder.recyclerView.getAdapter()).setActivityList(activityListItems.childListDetailses);
 

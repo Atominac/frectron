@@ -1,10 +1,10 @@
 package com.fretron.fleet;
 
 public class StoppageChildListDetails {
-    private String title, speed, distance;
+    private String title, speed, distance ;
 
 
-    public StoppageChildListDetails(String title, String speed, String distance) {
+    public StoppageChildListDetails(String title, String speed, String distance ) {
         this.title = title;
         this.speed = speed;
         this.distance = distance;
@@ -33,4 +33,5 @@ public class StoppageChildListDetails {
     public void setDistance(String distance) {
         this.distance = distance;
     }
+
 }

@@ -52,7 +52,6 @@ public class OverspeedParentAdapter extends RecyclerView.Adapter<OverspeedParent
     @Override
     public void onBindViewHolder(OverspeedParentAdapter.MyViewHolder holder, int position) {
 
-
         OverspeedParentListDetails activityListItems = activityList.get(position);
         holder.title.setText(activityListItems.getTitle());
         holder.distance.setText(activityListItems.getDistance());

@@ -26,13 +26,16 @@ public class OverspeedChildAdapter extends RecyclerView.Adapter<OverspeedChildAd
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, speed, distance;
+        public TextView title, speed, distance, location;
 
         public MyViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.overspeeding_start_time);
             speed = (TextView) view.findViewById(R.id.overspeeding_duration);
             distance = (TextView) view.findViewById(R.id.overspeeding_speed);
+            location = (TextView) view.findViewById(R.id.overspeeding_place);
+
+
         }
     }
 
@@ -49,6 +52,9 @@ public class OverspeedChildAdapter extends RecyclerView.Adapter<OverspeedChildAd
         holder.title.setText(activityListItems2.getTitle());
         holder.speed.setText(activityListItems2.getSpeed());
         holder.distance.setText(activityListItems2.getDistance());
+        holder.location.setText(activityListItems2.getLocation());
+
+
     }
 
     @Override

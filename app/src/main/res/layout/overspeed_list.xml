@@ -27,8 +27,8 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorAccent"
-                    android:padding="5dp">
+                    android:background="@color/colorPrimary"
+                    android:padding="2dp">
 
                     <TextView
                         android:id="@+id/textView_vehicle_name"
@@ -36,7 +36,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
                         android:text="TR1084"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="5dp"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#ffffff"/>
@@ -47,8 +47,8 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:text="Total : 32 min"
-                        android:textSize="16sp"
-                        android:layout_marginEnd="10dp"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="5dp"
                         android:textStyle="normal"
                         android:textColor="#ffffff"/>
 
@@ -57,10 +57,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop="25dp"
+                        android:layout_marginTop="20dp"
                         android:text="6 Kms"
-                        android:layout_marginEnd="10dp"
-                        android:textSize="16sp"
+                        android:layout_marginEnd="5dp"
+                        android:textSize="14sp"
                         android:textStyle="normal"
                         android:textColor="#ffffff"/>
 

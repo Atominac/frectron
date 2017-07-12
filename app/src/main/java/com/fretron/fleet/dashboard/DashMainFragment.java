@@ -344,7 +344,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                         Double lat = vehicleDetails.getDouble("latitude");
                         Double lng = vehicleDetails.getDouble("longitude");
                         Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-                        List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);;
+                        List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);
 
                         if (start_position_string.size()!=0){
                             location = start_position_string.get(0).getAddressLine(0);

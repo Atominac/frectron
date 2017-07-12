@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -36,6 +38,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,8 +47,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.android.gms.plus.internal.PlusCommonExtras.TAG;
 
@@ -72,10 +78,11 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
     CheckBox[] cb = new CheckBox[1];
     RecyclerView recyclerView;
     ArrayList<String> current_vehicle_in_list = new ArrayList<>();
-    Double total_distance = 0.0 ,totalSubDistance , total_time , averageSpeed = 0.0;
+    Double total_distance = 0.0 ,totalSubDistance , averageSpeed = 0.0 ,parentTime = 0.0 , neTime = 0.0 ;
     TextView textViewTotalRecords,textViewTotalDistance,textViewTotalTime;
     String record = " Record(s)" , recordValue , netRecord;
     int total_records = 0 ;
+    Double calculatedDistance = 0.0 ;
 
     public ReportOverspeedFragment() {
         // Required empty public constructor
@@ -150,11 +157,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
         textViewTotalRecords = (TextView)mView.findViewById(R.id.running_report_total_records);
         textViewTotalDistance = (TextView)mView.findViewById(R.id.running_report_total_distance);
         textViewTotalTime = (TextView)mView.findViewById(R.id.running_report_total_time);
-        mAdapter = new OverspeedParentAdapter(parentItemList);
-        RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView_overspeed_list);
-        recyclerView.setLayoutManager(getLinearLayoutManager());
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
+        recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView_overspeed_list);
 
         Button button = (Button) mView.findViewById(R.id.overspeeding_start_date_button);
         button.setOnClickListener(this);
@@ -246,6 +249,17 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                             }
                             c2.close();
 
+                            Set<String> hs = new HashSet<>();
+                            hs.addAll(list);
+                            list.clear();
+                            list.addAll(hs);
+
+                            if (parentItemList != null){
+                                parentItemList.clear();
+                                mAdapter = new OverspeedParentAdapter(parentItemList);
+                                mAdapter.notifyDataSetChanged();
+                                total_records = 0 ;
+                            }
 
                             // JSON CALL STARTS HERE
                             makeJsonObjectRequest(start_date_epo,end_date_epo,list);
@@ -345,8 +359,10 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
             @Override
             public void onResponse(JSONArray jsonArray) {
 
+                String location = "NA";
                 for (int i = 0; i <= jsonArray.length(); i++) {
                     try {
+                        parentTime = 0.0 ;
                         totalSubDistance = 0.0;
                         JSONObject vehicleDetails = (JSONObject) jsonArray.get(i);
                         String imei_no =  vehicleDetails.get("imei").toString();
@@ -378,40 +394,63 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                                     String.valueOf(mi);
 
 
+                            JSONObject  position_object = (JSONObject) inner_json.get("startPosition");
+                            Double lat = position_object.getDouble("lat");
+                            Double lng = position_object.getDouble("long");
+
+                            Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
+                            List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);
+
+                            if (start_position_string.size()!=0){
+                                location = start_position_string.get(0).getAddressLine(0);
+                            }
+
                             String over_speed_duration = inner_json.getString("duration");
+                            parentTime = parentTime + Double.parseDouble(over_speed_duration);
+
                             String over_speed_speed = inner_json.getString("averageSpeed");
 
 
                             averageSpeed= Math.round((Double.parseDouble(over_speed_speed)/1000) * 100.0) / 100.0;
 
-                            Double calculatedDistance = Double.parseDouble(over_speed_duration)*Double.parseDouble(over_speed_speed);
-                            total_distance = (total_distance + calculatedDistance)/1000;
+                            calculatedDistance = Double.parseDouble(over_speed_duration)*Double.parseDouble(over_speed_speed);
                             totalSubDistance = (totalSubDistance + calculatedDistance)/1000;
 
-                            OverspeedingChildListDetails activityItems = new OverspeedingChildListDetails(netDateTime,over_speed_duration,String.valueOf(averageSpeed)+ "\nKmph");
+                            OverspeedingChildListDetails activityItems = new OverspeedingChildListDetails(netDateTime,over_speed_duration + " msec",String.valueOf(averageSpeed)+ "\nKmph",location);
                             childs.add(activityItems);
                         }
 
-                        p.setSpeed("N-A-");
+                        total_distance = (total_distance + calculatedDistance)/1000;
+
+                        p.setSpeed(String.valueOf(parentTime)+ " msec");
                         p.setTitle(imei_no);
-                        p.setDistance(String.valueOf(Math.round(totalSubDistance * 100.0) / 100.0));
+                        p.setDistance(String.valueOf(Math.round(totalSubDistance * 100.0) / 100.0)+ " Kms");
                         p.childListDetailses = childs;
                         parentItemList.add(p);
                         total_records ++;
+                        neTime = neTime + parentTime;
                     }
 
-                    catch (JSONException e) {
+                    catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
 
                 }
 
+                hidepProgress();
                 recordValue = String.valueOf(total_records);
                 netRecord = recordValue + record ;
                 textViewTotalRecords.setText(netRecord);
                 textViewTotalDistance.setText(String.valueOf(Math.round(total_distance * 100.0) / 100.0));
-                hidepProgress();
+
+                textViewTotalTime.setText(String.valueOf(neTime)+ " msec");
+
+                mAdapter = new OverspeedParentAdapter(parentItemList);
                 mAdapter.setActivityList(parentItemList);
+                recyclerView.setLayoutManager(getLinearLayoutManager());
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setAdapter(mAdapter);
+
             }
         }
                 , new Response.ErrorListener() {

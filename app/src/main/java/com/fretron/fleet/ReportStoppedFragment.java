@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -37,13 +39,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.android.gms.plus.internal.PlusCommonExtras.TAG;
 
@@ -53,6 +59,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
     private Orientation mOrientation;
     int mHour,mHour2, mMinute, mMinute2;
     public SQLiteDatabase sqLiteDatabase;
+    Calendar calendar;
     String mRecurrenceOption, mRecurrenceRule,mRecurrenceOption2, mRecurrenceRule2;
     ProgressBar progressBar;
     String start_date_epo , end_date_epo ;
@@ -62,16 +69,16 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
     ArrayList<String> selected_vehicles = new ArrayList<>();
     Cursor c , c2 ;
     ArrayList<String> list = new ArrayList<String>();
-    List<StoppageParentListDetails> parentItemList = new ArrayList<>();
+    List<StoppageParentListDetails> stoppageParentItemList = new ArrayList<>();
     String check;
     CheckBox[] cb = new CheckBox[1];
     ArrayList<String> current_vehicle_in_list = new ArrayList<>();
     StoppageParentAdapter mAdapter;
-    Double total_distance = 0.0 ,totalSubDistance , total_time ;
-    TextView textViewTotalRecords,textViewTotalDistance,textViewTotalTime;
+    Double parentTime = 0.0 , netTime = 0.0;
+    TextView textViewTotalRecords,textViewTotalTime;
     String record = " Record(s)" , recordValue , netRecord;
     int total_records = 0 ;
-
+    RecyclerView recyclerView;
 
     public ReportStoppedFragment() {
 
@@ -148,33 +155,34 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
         c = sqLiteDatabase.rawQuery(query2, null);
         c.moveToFirst();
 
+
+        textViewTotalRecords = (TextView)mView.findViewById(R.id.running_report_total_records);
+        textViewTotalTime = (TextView)mView.findViewById(R.id.running_report_total_time);
+
+        mAdapter = new StoppageParentAdapter(stoppageParentItemList);
+        recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView_stoppage_list);
+        recyclerView.setLayoutManager(getLinearLayoutManager());
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+
         final ArrayList<String> vehicleRegistrationList = new ArrayList<>();
 
         if (c.moveToFirst()) {
             do {
                 String vehicleRegNo = c.getString(0);
-                String vtsDeviceId = c.getString(1);
                 vehicleRegistrationList.add(vehicleRegNo);
 
             } while (c.moveToNext());
         }
         c.close();
 
-        textViewTotalRecords = (TextView)mView.findViewById(R.id.running_report_total_records);
-        textViewTotalDistance = (TextView)mView.findViewById(R.id.running_report_total_distance);
-        textViewTotalTime = (TextView)mView.findViewById(R.id.running_report_total_time);
-        mAdapter = new StoppageParentAdapter(parentItemList);
-        RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView_stoppage_list);
-        recyclerView.setLayoutManager(getLinearLayoutManager());
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
 
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         horizontalRecyclerView = (RecyclerView)mView.findViewById(R.id.vehicle_horizontal_list);
         horizontalRecyclerView.setLayoutManager(layoutManager);
 
-        horizontalListAdapter = new HorizontalVehicleListAdapterStopped(mContext, current_vehicle_in_list , new ReportStoppedFragment());
+        horizontalListAdapter = new HorizontalVehicleListAdapterStopped(mContext, current_vehicle_in_list , ReportStoppedFragment.this);
         horizontalRecyclerView.setAdapter(horizontalListAdapter);
 
         Button mButtonAdd = (Button) mView.findViewById(R.id.button_add_vehicle);
@@ -241,6 +249,19 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
                                 } while (c2.moveToNext());
                             }
                             c2.close();
+
+                            Set<String> hs = new HashSet<>();
+                            hs.addAll(list);
+                            list.clear();
+                            list.addAll(hs);
+
+                            if (stoppageParentItemList != null){
+                                stoppageParentItemList.clear();
+                                mAdapter = new StoppageParentAdapter(stoppageParentItemList);
+                                mAdapter.notifyDataSetChanged();
+                                total_records = 0 ;
+                            }
+
                             // JSON CALL STARTS HERE
                             makeJsonObjectRequest(start_date_epo,end_date_epo,list);
 
@@ -254,15 +275,15 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
         return view;
     }
 
-    public void makeJsonObjectRequest(String startTime,String endTime , ArrayList vts_id) {
+    public void makeJsonObjectRequest(final String startTime, String endTime , ArrayList vts_id) {
         showpProgress();
 
         String urlJsonArray = "http://35.189.189.215:8094/stoppageReport";
-//        BigInteger bi1 =  new BigInteger(startTime);
-//        BigInteger bi2 =  new BigInteger(endTime);
+        BigInteger bi1 =  new BigInteger(startTime);
+        BigInteger bi2 =  new BigInteger(endTime);
 
-        BigInteger bi1 =  new BigInteger("1496485983096");
-        BigInteger bi2 =  new BigInteger("1497695588750");
+//        BigInteger bi1 =  new BigInteger("1496485983096");
+//        BigInteger bi2 =  new BigInteger("1497695588750");
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put( "startTime", bi1 );
@@ -273,42 +294,82 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
             @Override
             public void onResponse(JSONArray jsonArray) {
 
+                String location = "NA";
                 for (int i = 0; i <= jsonArray.length(); i++) {
-                    int j = 0 ;
-                    j++;
-//                    try {
-//                        JSONObject vehicleDetails = (JSONObject) jsonArray.get(i);
-//                        String imei_no =  vehicleDetails.get("imei").toString();
-//                        StoppageParentListDetails p = new StoppageParentListDetails();
-//                        p.setTitle(imei_no);
-//
-//                        JSONArray  start_position_object = (JSONArray) vehicleDetails.get("value");
-//                        ArrayList<StoppageChildListDetails> childs = new ArrayList<>();
-//                        for (int j=0 ; j<=4;j++){
-//
-//                            JSONObject inner_json = (JSONObject) start_position_object.get(j);
-//                            String over_speed_start_time = inner_json.getString("startTime");
-//                            String over_speed_duration = inner_json.getString("duration");
-//                            String over_speed_speed = inner_json.getString("averageSpeed");
-//                            StoppageChildListDetails activityItems = new StoppageChildListDetails(over_speed_start_time,over_speed_duration,over_speed_speed);
-//                            childs.add(activityItems);
-//                        }
-//
-//                        p.setDistance("N-A-");
-//                        p.setSpeed("N-A-");
-//
-//                        p.childListDetailses = childs;
-//                        parentItemList.add(p);
-//
-//                    }
-//
-//                    catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
+                    try {
+                        parentTime = 0.0 ;
+                        JSONObject vehicleDetails = (JSONObject) jsonArray.get(i);
+                        String imei_no =  vehicleDetails.get("imei").toString();
+
+                        StoppageParentListDetails p2 = new StoppageParentListDetails();
+
+                        JSONArray  start_position_object = (JSONArray) vehicleDetails.get("value");
+                        ArrayList<StoppageChildListDetails> childs = new ArrayList<>();
+                        for (int j=0 ; j<=2;j++){
+
+                            JSONObject inner_json = (JSONObject) start_position_object.get(j);
+                            String over_speed_start_time = inner_json.getString("startTime");
+
+                            calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(Long.parseLong(over_speed_start_time));
+
+                            int yy = calendar.get(Calendar.YEAR);
+                            int mm = calendar.get(Calendar.MONTH);
+                            int dd = calendar.get(Calendar.DAY_OF_MONTH);
+                            int hh = calendar.get(Calendar.HOUR_OF_DAY);
+                            int mi = calendar.get(Calendar.MINUTE);
+
+                            String netDateTime = String.valueOf(dd)+ "/" +
+                                    String.valueOf(mm)+  "/" +
+                                    String.valueOf(yy)+  " " +
+                                    String.valueOf(hh)+  ":" +
+                                    String.valueOf(mi);
+
+
+                            JSONObject  position_object = (JSONObject) inner_json.get("startPosition");
+                            Double lat = position_object.getDouble("lat");
+                            Double lng = position_object.getDouble("long");
+
+                            Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
+                            List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);
+
+                            if (start_position_string.size()!=0){
+                                location = start_position_string.get(0).getAddressLine(0);
+                            }
+
+                            String stoppageDuration = inner_json.getString("duration");
+                            parentTime = parentTime + Double.parseDouble(stoppageDuration);
+
+                          //  String over_speed_speed = inner_json.getString("averageSpeed");
+                            StoppageChildListDetails activityItems = new StoppageChildListDetails(netDateTime,stoppageDuration + "\nmsec",location);
+                            childs.add(activityItems);
+                        }
+
+                        p2.setTitle(imei_no);
+                        p2.setTime(String.valueOf(parentTime)+ " msec");
+                        p2.childListDetailses = childs;
+                        stoppageParentItemList.add(p2);
+                        total_records ++;
+                        netTime = netTime + parentTime ;
+
+                    }
+
+                    catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                Toast.makeText(getActivity(),"success",Toast.LENGTH_LONG).show();
+
+                recordValue = String.valueOf(total_records);
+                netRecord = recordValue + record ;
+                textViewTotalRecords.setText(netRecord);
+
+                textViewTotalTime.setText(String.valueOf(netTime)+" millisec");
+                mAdapter = new StoppageParentAdapter(stoppageParentItemList);
+                mAdapter.setActivityList(stoppageParentItemList);
+                recyclerView.setLayoutManager(getLinearLayoutManager());
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setAdapter(mAdapter);
                 hidepProgress();
-                mAdapter.setActivityList(parentItemList);
             }
         }
                 , new Response.ErrorListener() {

@@ -12,40 +12,33 @@
         android:layout_height="wrap_content"
         android:text="2:30 PM"
         android:gravity="center"
-        android:id="@+id/overspeeding_start_time"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="5 min"
-        android:gravity="center"
-        android:id="@+id/overspeeding_duration"
-        />
+        android:id="@+id/stoppage_start_time"/>
 
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp">
 
         <View
             android:layout_width="match_parent"
             android:layout_height="4dp"
-            android:background="#C0C0C0"
+            android:background="@color/colorPrimaryDark"
             android:layout_marginTop="25dp"
             />
 
         <TextView
-            android:id="@+id/overspeeding_speed"
+            android:id="@+id/stoppage_duration"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/circleprev"
+            android:background="@drawable/textview_design"
             android:gravity="center_vertical|center_horizontal"
             android:text="60\nKmph"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
     </RelativeLayout>
@@ -53,8 +46,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Huda city metro"
-        android:id="@+id/overspeeding_place"
-        android:gravity="center"/>
+        android:text="5 min"
+        android:gravity="center"
+        android:id="@+id/stoppage_location"
+        />
+
 
 </LinearLayout>

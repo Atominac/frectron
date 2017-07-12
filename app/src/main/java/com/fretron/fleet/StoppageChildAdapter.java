@@ -25,13 +25,13 @@ public class StoppageChildAdapter extends RecyclerView.Adapter<StoppageChildAdap
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, speed, distance;
+        public TextView title, speed, distance ;
 
         public MyViewHolder(View view) {
             super(view);
-            title = (TextView) view.findViewById(R.id.overspeeding_start_time);
-            speed = (TextView) view.findViewById(R.id.overspeeding_duration);
-            distance = (TextView) view.findViewById(R.id.overspeeding_speed);
+            title = (TextView) view.findViewById(R.id.stoppage_start_time);
+            speed = (TextView) view.findViewById(R.id.stoppage_duration);
+            distance = (TextView) view.findViewById(R.id.stoppage_location);
         }
     }
 
