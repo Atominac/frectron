@@ -24,11 +24,13 @@
         app:menu="@menu/activity_dash_board_drawer">
 
         <ExpandableListView
+            android:layout_marginStart="-30dp"
             android:id="@+id/left_drawer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="?attr/actionBarSize"
-            android:dividerHeight="0dp" />
+            android:dividerHeight="0dp"
+            android:groupIndicator="@android:color/transparent" />
 
     </android.support.design.widget.NavigationView>
 

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.fretron.fleet.dashboard.DashBoard;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityListAdapter extends RecyclerView.Adapter<ActivityListAdapter.ViewHolder> {
@@ -88,10 +89,10 @@ public class ActivityListAdapter extends RecyclerView.Adapter<ActivityListAdapte
         return activityList.size();
     }
 
-//    public void setFilter(List<ActivityListItems> countryModels) {
-//        activityList = new ArrayList<>();
-//        activityList.addAll(countryModels);
-//        notifyDataSetChanged();
-//    }
+    public void setFilter(List<ActivityListItems> vehicleDetailList) {
+        activityList = new ArrayList<>();
+        activityList.addAll(vehicleDetailList);
+        notifyDataSetChanged();
+    }
 
 }

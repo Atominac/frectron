@@ -22,7 +22,7 @@
     <string name="nav_header_4">Report</string>
     <string name="nav_header_5">Alert</string>
     <string name="nav_header_6">Settings</string>
-    <string name="nav_header_7">Sign up</string>
+    <string name="nav_header_7">Sign out</string>
 
     <string-array name="CountryCodes">
         <item>91,IN</item>

@@ -7,10 +7,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,29 +19,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.ViewFlipper;
-
 import com.fretron.fleet.dashboard.DashBoard;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.fretron.fleet.R.id.map2;
 
-public class LocationFragment extends Fragment{
+public class LocationFragment extends Fragment implements SearchView.OnQueryTextListener{
     protected View mView;
     Menu menu ;
     private RecyclerView vehicleList_recyclerView ;
     ArrayList<String> vehicle_list = new ArrayList<>();
     RecyclerView.Adapter adapter;
+    ListView listView ;
 
     SQLiteDatabase sqLiteDatabase;
     Cursor c,c2;
@@ -84,10 +71,11 @@ public class LocationFragment extends Fragment{
         }
         c.close();
 
-        final ListView listView = (ListView) mView.findViewById(R.id.location_vehicle_name_list);
+        listView = (ListView) mView.findViewById(R.id.location_vehicle_name_list);
         ArrayAdapter<String> ad = new ArrayAdapter<String>(getActivity(), R.layout.location_vehiclelist_recycler,
                 R.id.location_list_textView,vehicle_list);
         listView.setAdapter(ad);
+        listView.setTextFilterEnabled(true);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -137,26 +125,29 @@ public class LocationFragment extends Fragment{
         this.menu = menu;
         inflater.inflate(R.menu.report_frag_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        MenuItem menuItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
+        searchView.setOnQueryTextListener(this);
 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
 
-        int id = item.getItemId();
-
-        if (id == R.id.action_search) {
-            //Toast.makeText(getActivity(), "got it", Toast.LENGTH_LONG).show();
-            SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-            //SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-            //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            return true;
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        newText = newText.toLowerCase();
+        if (TextUtils.isEmpty(newText)) {
+            listView.clearTextFilter();
+        } else {
+            listView.setFilterText(newText);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     protected void openDatabase() {
         sqLiteDatabase = getActivity().openOrCreateDatabase("vehicle_details", Context.MODE_PRIVATE, null);
     }
-
 }

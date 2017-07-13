@@ -24,6 +24,7 @@ import com.fretron.fleet.R;
 import com.fretron.fleet.ReportOverspeedFragment;
 import com.fretron.fleet.ReportRunningFragment;
 import com.fretron.fleet.ReportStoppedFragment;
+import com.fretron.fleet.SignOutFragment;
 import com.fretron.fleet.Statisticsfragment;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class DashBoard extends AppCompatActivity
                         drawer.closeDrawer(GravityCompat.START);
                         return true;
 
-                    case 2:
+                    case 1:
                         LocationFragment fragmenty = new LocationFragment();
                         FragmentTransaction fragmentTransactiony = getSupportFragmentManager().beginTransaction();
                         fragmentTransactiony.replace(R.id.fragment_container,fragmenty);
@@ -149,6 +150,16 @@ public class DashBoard extends AppCompatActivity
                         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                         drawer.closeDrawer(GravityCompat.START);
                         return true;
+
+                    case 5 :
+                        SignOutFragment signOutFragment = new SignOutFragment();
+                        FragmentTransaction signoutTransaction = getSupportFragmentManager().beginTransaction();
+                        signoutTransaction.replace(R.id.fragment_container,signOutFragment);
+                        signoutTransaction.commit();
+                        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                        drawer.closeDrawer(GravityCompat.START);
+                        return true;
+
                 }
 
                 return false;
@@ -165,7 +176,6 @@ public class DashBoard extends AppCompatActivity
 
             }
         });
-
         expListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
 
             @Override
@@ -173,7 +183,6 @@ public class DashBoard extends AppCompatActivity
 
             }
         });
-
         expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
             @Override
@@ -181,38 +190,38 @@ public class DashBoard extends AppCompatActivity
                                         int groupPosition, int childPosition, long id) {
 
                 switch(groupPosition) {
-                    case 1:
-                        switch (childPosition) {
-                            case 0:
-                                Statisticsfragment fragmentx = new Statisticsfragment();
-                                FragmentTransaction fragmentTransactionx = getSupportFragmentManager().beginTransaction();
-                                fragmentTransactionx.replace(R.id.fragment_container,fragmentx);
-                                fragmentTransactionx.commit();
-                                break;
-                            case 1:
-                                Statisticsfragment fragment2 = new Statisticsfragment();
-                                FragmentTransaction fragmentTransaction2 = getSupportFragmentManager().beginTransaction();
-                                fragmentTransaction2.replace(R.id.fragment_container,fragment2);
-                                fragmentTransaction2.commit();
-                                break;
-                            case 2:
-                                Statisticsfragment fragment3 = new Statisticsfragment();
-                                FragmentTransaction fragmentTransaction3 = getSupportFragmentManager().beginTransaction();
-                                fragmentTransaction3.replace(R.id.fragment_container,fragment3);
-                                fragmentTransaction3.commit();
-                                break;
-                            case 3:
-                                Statisticsfragment fragment4 = new Statisticsfragment();
-                                FragmentTransaction fragmentTransaction4 = getSupportFragmentManager().beginTransaction();
-                                fragmentTransaction4.replace(R.id.fragment_container,fragment4);
-                                fragmentTransaction4.commit();
-                                break;
+//                    case 1:
+//                        switch (childPosition) {
+//                            case 0:
+//                                Statisticsfragment fragmentx = new Statisticsfragment();
+//                                FragmentTransaction fragmentTransactionx = getSupportFragmentManager().beginTransaction();
+//                                fragmentTransactionx.replace(R.id.fragment_container,fragmentx);
+//                                fragmentTransactionx.commit();
+//                                break;
+//                            case 1:
+//                                Statisticsfragment fragment2 = new Statisticsfragment();
+//                                FragmentTransaction fragmentTransaction2 = getSupportFragmentManager().beginTransaction();
+//                                fragmentTransaction2.replace(R.id.fragment_container,fragment2);
+//                                fragmentTransaction2.commit();
+//                                break;
+//                            case 2:
+//                                Statisticsfragment fragment3 = new Statisticsfragment();
+//                                FragmentTransaction fragmentTransaction3 = getSupportFragmentManager().beginTransaction();
+//                                fragmentTransaction3.replace(R.id.fragment_container,fragment3);
+//                                fragmentTransaction3.commit();
+//                                break;
+//                            case 3:
+//                                Statisticsfragment fragment4 = new Statisticsfragment();
+//                                FragmentTransaction fragmentTransaction4 = getSupportFragmentManager().beginTransaction();
+//                                fragmentTransaction4.replace(R.id.fragment_container,fragment4);
+//                                fragmentTransaction4.commit();
+//                                break;
+//
+//                        }
+//
+//                     break;
 
-                        }
-
-                     break;
-
-                    case 3:
+                    case 2:
                         switch (childPosition) {
                             case 0:
                                 ReportRunningFragment fragmentz = new ReportRunningFragment();
@@ -238,11 +247,8 @@ public class DashBoard extends AppCompatActivity
 
                                 break;
                         }
-
                         break;
-
                 }
-
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
@@ -253,16 +259,16 @@ public class DashBoard extends AppCompatActivity
     private void prepareListData(List<String> listDataHeader, Map<String,
                 List<String>> listDataChild) {
 
-        // Adding child data
+        // Adding Parent data
         String header_1 = getResources().getString(R.string.nav_header_1);
-        String header_2 = getResources().getString(R.string.nav_header_2);
+//        String header_2 = getResources().getString(R.string.nav_header_2);
         String header_3 = getResources().getString(R.string.nav_header_3);
         String header_4 = getResources().getString(R.string.nav_header_4);
         String header_5 = getResources().getString(R.string.nav_header_5);
         String header_6 = getResources().getString(R.string.nav_header_6);
         String header_7 = getResources().getString(R.string.nav_header_7);
         listDataHeader.add(header_1);
-        listDataHeader.add(header_2);
+//        listDataHeader.add(header_2);
         listDataHeader.add(header_3);
         listDataHeader.add(header_4);
         listDataHeader.add(header_5);
@@ -273,11 +279,11 @@ public class DashBoard extends AppCompatActivity
         List<String> first = new ArrayList<>();
         first.add("All vehicles");
 
-        List<String> second = new ArrayList<>();
-        second.add("Vehicle running 0 - 4 hrs");
-        second.add("Vehicle running 4 - 8 hrs");
-        second.add("Vehicle running 8 - 12 hrs");
-        second.add("Vehicle running 12 - 16 hrs");
+//        List<String> second = new ArrayList<>();
+//        second.add("Vehicle running 0 - 4 hrs");
+//        second.add("Vehicle running 4 - 8 hrs");
+//        second.add("Vehicle running 8 - 12 hrs");
+//        second.add("Vehicle running 12 - 16 hrs");
 
         List<String> third = new ArrayList<>();
         third.add("Tap to view the history timeline of the vehicles");
@@ -286,7 +292,7 @@ public class DashBoard extends AppCompatActivity
         fourth.add("Running");
         fourth.add("Overspeed");
         fourth.add("Stopped");
-        fourth.add("Night Drive");
+//        fourth.add("Night Drive");
 
         List<String> fifth = new ArrayList<>();
         fifth.add("Alert settings");
@@ -294,16 +300,16 @@ public class DashBoard extends AppCompatActivity
         List<String> sixth = new ArrayList<>();
         sixth.add("Manage all settings");
 
-        List<String> seventh = new ArrayList<>();
-        seventh.add("Tap to view settings");
+//        List<String> seventh = new ArrayList<>();
+//        seventh.add("Tap to view settings");
 
         listDataChild.put(listDataHeader.get(0), first); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), second);
-        listDataChild.put(listDataHeader.get(2), third);
-        listDataChild.put(listDataHeader.get(3), fourth);
-        listDataChild.put(listDataHeader.get(4), fifth);
-        listDataChild.put(listDataHeader.get(5), sixth);
-        listDataChild.put(listDataHeader.get(6), seventh);
+//        listDataChild.put(listDataHeader.get(1), second);
+        listDataChild.put(listDataHeader.get(1), third);
+        listDataChild.put(listDataHeader.get(2), fourth);
+        listDataChild.put(listDataHeader.get(3), fifth);
+        listDataChild.put(listDataHeader.get(4), sixth);
+//        listDataChild.put(listDataHeader.get(5), seventh);
     }
 
     public void setActionBarTitle(String title) {
