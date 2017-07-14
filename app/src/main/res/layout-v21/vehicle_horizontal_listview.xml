@@ -7,17 +7,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Truck Name"
-        android:textSize="20sp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/custom_button"
         android:padding="10dp"
-        android:id="@+id/button4" />
+        android:id="@+id/button4"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"/>
 
     <ImageButton
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:background="@drawable/close"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/button4"
         android:layout_marginStart="-10dp"
-        android:elevation="2dp"/>
+        android:elevation="2dp"
+        android:contentDescription="@string/description"/>
 
 </RelativeLayout>

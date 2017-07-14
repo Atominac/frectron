@@ -18,7 +18,6 @@
         android:layout_width="250dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:layout_marginTop="?attr/actionBarSize"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_dash_board"
         app:menu="@menu/activity_dash_board_drawer">
@@ -28,7 +27,7 @@
             android:id="@+id/left_drawer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginTop="80dp"
             android:dividerHeight="0dp"
             android:groupIndicator="@android:color/transparent" />
 

@@ -41,21 +41,13 @@ public class HorizontalVehicleListAdapterOverspeed  extends RecyclerView.Adapter
     @Override
     public HorizontalVehicleListAdapterOverspeed.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
         // Create a new View
-        View v = LayoutInflater.from(mContext).inflate(R.layout.vehicle_horizontal_listview,parent,false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.horizontal_list,parent,false);
         return new HorizontalVehicleListAdapterOverspeed.ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final HorizontalVehicleListAdapterOverspeed.ViewHolder holder, int position){
         holder.mTextView.setText(mDataSet.get(holder.getAdapterPosition()));
-        // Set a click listener for TextView
-//        holder.mTextView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String animal = mDataSet.get(position);
-//                Toast.makeText(mContext,animal,Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
             @Override

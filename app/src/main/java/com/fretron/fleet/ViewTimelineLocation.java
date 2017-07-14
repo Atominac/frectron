@@ -1,6 +1,7 @@
 package com.fretron.fleet;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -9,11 +10,15 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -77,6 +82,7 @@ public class ViewTimelineLocation extends Fragment {
     String start_date_epo , end_date_epo ;
     private UserLoginTask mAuthTask = null;
     String startPosition = "";
+    Calendar calendar ;
 
     public ViewTimelineLocation() {
         // Required empty public constructor
@@ -263,6 +269,37 @@ public class ViewTimelineLocation extends Fragment {
         super.onResume();
         mapView.onResume();
         initializeMap();
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+
+                    DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+                    if (drawer.isDrawerOpen(GravityCompat.START)) {
+                        drawer.closeDrawer(GravityCompat.START);
+                    } else {
+
+                        LocationFragment fragment = new LocationFragment();
+                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.fragment_container,fragment);
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+
+                    }
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -291,35 +328,20 @@ public class ViewTimelineLocation extends Fragment {
         }
     }
 
-//    private void initView() {
-//        setDataListItems();
-//        mTimeLineAdapter = new TimeLineAdapter(mDataList, mOrientation, mWithLinePadding);
-//        mRecyclerView.setAdapter(mTimeLineAdapter);
-//    }
-//
-//    private void setDataListItems(){
-//        mDataList.add(new TimeLineModel("Huda city center", "2017-02-12 08:00", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("MG Road metro", "2017-02-13 09:00", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("Sultanpur", "2017-02-15 10:00", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("Hauz khaz", "2017-02-17 18:00", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("India Gate", "2017-02-18 09:30", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("Anad vihar ISBT", "2017-02-20 08:00", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("Vaishali Ghaziabad", "2017-02-22 15:00", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("Lucknow", "2017-02-24 14:30", OrderStatus.COMPLETED));
-//        mDataList.add(new TimeLineModel("Gorakhpur", "2017-02-27 14:00", OrderStatus.ACTIVE));
-//    }
-
-    public class UserLoginTask extends AsyncTask<String, Void, String> {
+    public class UserLoginTask extends AsyncTask<String, Void, String[]> {
         private  Double lat , lng ;
+        private  String date ;
         TimeLineModel timeLineModel ;
 
-        UserLoginTask(Double latitude , Double longitude) {
+        UserLoginTask(Double latitude , Double longitude , String dateTime) {
             lat = latitude ;
             lng = longitude ;
+            date = dateTime ;
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String[] doInBackground(String... params) {
+            String[] arr = new String[2];
             // TODO: attempt authentication against a network service.
             try {
                 Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
@@ -330,11 +352,29 @@ public class ViewTimelineLocation extends Fragment {
                     startPosition = start_position_string.get(0).getAddressLine(0);
                 }
 
+                calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(Long.parseLong(date));
+
+                int yy = calendar.get(Calendar.YEAR);
+                int mm = calendar.get(Calendar.MONTH);
+                int dd = calendar.get(Calendar.DAY_OF_MONTH);
+                int hh = calendar.get(Calendar.HOUR_OF_DAY);
+                int mi = calendar.get(Calendar.MINUTE);
+
+                String netDateTime = String.valueOf(dd)+ "/" +
+                        String.valueOf(mm)+  "/" +
+                        String.valueOf(yy)+  " " +
+                        String.valueOf(hh)+  ":" +
+                        String.valueOf(mi);
+
+                arr[0] = startPosition ;
+                arr[1]= netDateTime ;
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return startPosition;
+            return arr;
         }
 
         @Override
@@ -347,9 +387,9 @@ public class ViewTimelineLocation extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(String[] arr) {
             mAuthTask = null;
-            timeLineModel = new TimeLineModel(result, "2017-02-12 08:00", OrderStatus.COMPLETED);
+            timeLineModel = new TimeLineModel(arr[0], arr[1], OrderStatus.COMPLETED);
             mDataList.add(timeLineModel);
             LinearLayoutManager layoutManager
                     = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
@@ -393,14 +433,15 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onResponse(JSONArray jsonArray) {
 
-                for (int i = 0; i <=jsonArray.length(); i++) {
+                for (int i = 0; i <=20; i++) {
                     try {
                         JSONObject vehicleDetails = (JSONObject) jsonArray.get(i);
 
                         JSONObject  start_position_object = (JSONObject) vehicleDetails.get("startPosition");
                         Double lat = start_position_object.getDouble("latitude");
                         Double lng = start_position_object.getDouble("longitude");
-                        mAuthTask = new UserLoginTask(lat,lng);
+                        String dateTime = vehicleDetails.getString("startTime");
+                        mAuthTask = new UserLoginTask(lat,lng,dateTime);
                         mAuthTask.execute((String) null);
 
                     } catch (JSONException e) {
@@ -440,4 +481,6 @@ public class ViewTimelineLocation extends Fragment {
         progressBar.setIndeterminate(false);
         progressBar.setVisibility(View.GONE);
     }
+
+
 }

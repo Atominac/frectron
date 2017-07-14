@@ -39,7 +39,7 @@ public class HorizontalVehicleListAdapterStopped  extends RecyclerView.Adapter<H
     @Override
     public HorizontalVehicleListAdapterStopped.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
         // Create a new View
-        View v = LayoutInflater.from(mContext).inflate(R.layout.vehicle_horizontal_listview,parent,false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.horizontal_list,parent,false);
         return new HorizontalVehicleListAdapterStopped.ViewHolder(v);
     }
 

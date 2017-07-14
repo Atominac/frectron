@@ -84,15 +84,12 @@ public class Phone_no extends AppCompatActivity {
                 viewFlipper.setOutAnimation(Phone_no.this, R.anim.view_transition_out_left);
                 viewFlipper.showNext();
 
-                /*
-                if (!num1.equals("") && num1.length()==10){
-                    mAuthTask = new UserLoginTask(num1);
-                    mAuthTask.execute((String) null);
-                }
-                else
-                    Toast.makeText(Phone_no.this,"Please enter a valid no.",Toast.LENGTH_SHORT).show();
-
-                     */
+//                if (!num1.equals("") && num1.length()==10){
+//                    mAuthTask = new UserLoginTask(num1);
+//                    mAuthTask.execute((String) null);
+//                }
+//                else
+//                    Toast.makeText(Phone_no.this,"Please enter a valid no.",Toast.LENGTH_SHORT).show();
 
 
             }
@@ -109,14 +106,12 @@ public class Phone_no extends AppCompatActivity {
                 Intent intent = new Intent("com.fretron.fleet.dashboard.DashBoard");
                 startActivity(intent);
 
-                /*
-                if (!num1.equals("") && num1.length()==6){
-                    makeJsonObjectRequest();
-                }
-                else
-                    Toast.makeText(Phone_no.this,"Invalid OTP",Toast.LENGTH_SHORT).show();
 
-                    */
+//                if (!num1.equals("") && num1.length()==6){
+//                    makeJsonObjectRequest();
+//                }
+//                else
+//                    Toast.makeText(Phone_no.this,"Invalid OTP",Toast.LENGTH_SHORT).show();
 
 
             }
@@ -158,7 +153,7 @@ public class Phone_no extends AppCompatActivity {
             // TODO: attempt authentication against a network service.
             String result="",line="";
             String finalJson = "";
-            String login_url="http://35.189.162.187:7078/login?mobileNumber="+mPhone;
+            String login_url="http://35.189.189.215:8094/login?mobileNumber="+mPhone;
             try {
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpGet httpGet = new HttpGet(login_url);
@@ -259,7 +254,7 @@ public class Phone_no extends AppCompatActivity {
         String phoneNo = editText.getText().toString();
         EditText editText2 = (EditText)findViewById(R.id.editText2);
         String otp = editText2.getText().toString();
-        String urlJsonObj = "http://35.189.162.187:7078/authentication?mobileNumber="+ phoneNo + "&otp=" + otp;
+        String urlJsonObj = "http://35.189.189.215:8094/authentication?mobileNumber="+ phoneNo + "&otp=" + otp;
         final String[] jsonResponse = new String[1];
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET, urlJsonObj, null, new Response.Listener<JSONObject>() {
@@ -298,7 +293,7 @@ public class Phone_no extends AppCompatActivity {
     }
 
     private void makeJsonObjectRequest2() {
-        String urlJsonObj2 = "http://35.189.162.187:7078/authorize";
+        String urlJsonObj2 = "http://35.189.189.215:8094/authorize";
         final String[] jsonResponse2 = new String[1];
 
                     JsonObjectRequest jsonObjReq2 = new JsonObjectRequest(Request.Method.GET,
@@ -318,7 +313,7 @@ public class Phone_no extends AppCompatActivity {
                                             EditText editText = (EditText)findViewById(R.id.editText);
                                             String phoneNo = editText.getText().toString();
                                             session.create_login_session(phoneNo,token);
-                                            Intent intent = new Intent("com.sample.project_frectron.DashBoard");
+                                            Intent intent = new Intent("com.fretron.fleet.dashboard.DashBoard");
                                             intent.putExtra("Token",token);
                                             startActivity(intent);
                                         }

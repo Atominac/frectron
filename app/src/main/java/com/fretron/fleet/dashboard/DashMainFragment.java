@@ -2,6 +2,7 @@ package com.fretron.fleet.dashboard;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
@@ -10,12 +11,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Base64;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +42,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.fretron.fleet.ActivityListAdapter;
 import com.fretron.fleet.ActivityListItems;
+import com.fretron.fleet.LocationFragment;
 import com.fretron.fleet.Orientation;
 import com.fretron.fleet.R;
 import com.fretron.fleet.VolleyMain;
@@ -50,6 +56,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -127,23 +135,22 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         View myView = inflater2.inflate(R.layout.activity_content_list, container, false);
 
         textView = (TextView) mView.findViewById(R.id.textView_company_name);
-        /*
-        token = getActivity().getIntent().getExtras().getString("Token");
-        assert token != null;
-        String[] splits = token.split("\\.");
 
-        String split = splits[1];
-        try {
-             String customerJson = getJson(split);
-             JSONParser parser = new JSONParser();
-             JSONObject json = (JSONObject) parser.parse(customerJson);
-             customer_id = (String) json.get("customerId");
-
-        } catch (Exception e) {
-            Toast.makeText(getActivity()," Not working ",Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-        */
+//        token = getActivity().getIntent().getExtras().getString("Token");
+//        assert token != null;
+//        String[] splits = token.split("\\.");
+//
+//        String split = splits[1];
+//        try {
+//             String customerJson = getJson(split);
+//             JSONParser parser = new JSONParser();
+//             JSONObject json = (JSONObject) parser.parse(customerJson);
+//             customer_id = (String) json.get("customerId");
+//
+//        } catch (Exception e) {
+//            Toast.makeText(getActivity()," Not working ",Toast.LENGTH_LONG).show();
+//            e.printStackTrace();
+//        }
 
 
         makeJsonObjectRequest(customer_id);
@@ -459,18 +466,6 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         VolleyMain.getInstance().addToRequestQueue(jsonObjReq);
     }
 
-//    private void prepareData() {
-//        ActivityListItems activityItems = new ActivityListItems("tr101", "22 Kmph", "201 km");
-//        activityList.add(activityItems);
-//
-//        activityItems = new ActivityListItems("tr202", "34 Kmph", "781 km");
-//        activityList.add(activityItems);
-//
-//        activityItems = new ActivityListItems("tr303", "54 Kmph", "281 km");
-//        activityList.add(activityItems);
-//
-//        //mAdapter.notifyDataSetChanged();
-//    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -483,6 +478,36 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         super.onResume();
         mapView.onResume();
         initializeMap();
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+
+                    DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+                    if (drawer.isDrawerOpen(GravityCompat.START)) {
+                        drawer.closeDrawer(GravityCompat.START);
+                    } else {
+
+                        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+                        setIntent.addCategory(Intent.CATEGORY_HOME);
+                        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(setIntent);
+
+                    }
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
