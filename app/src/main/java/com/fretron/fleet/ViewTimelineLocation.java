@@ -203,17 +203,20 @@ public class ViewTimelineLocation extends Fragment {
                 // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
 
                 Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getDefault());
-                calendar.set(year, month, day-1, 0,0,0);
+                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+                calendar.set(year, month-1, day-1, 0,0,0);
                 long startTime = calendar.getTimeInMillis();
                 String selected_startTime = Long.toString(startTime);
 
                 Calendar calendar2 = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getDefault());
-                calendar2.set(year, month, day-1, 23,59, 59);
+                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+                calendar2.set(year, month-1, day-1, 23,59, 59);
                 long endTime = calendar2.getTimeInMillis();
                 String selected_endTime = Long.toString(endTime);
                 button.setText(day-1+"/"+month+"/"+year);
+//                nestedScrollView.setVisibility(View.GONE);
+//                progressBar.setIndeterminate(true);
+//                progressBar.setVisibility(View.VISIBLE);
                 makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
 
             }
@@ -245,6 +248,9 @@ public class ViewTimelineLocation extends Fragment {
                 long endTime = calendar2.getTimeInMillis();
                 String selected_endTime = Long.toString(endTime);
                 button.setText(day+1+"/"+month+"/"+year);
+//                nestedScrollView.setVisibility(View.GONE);
+//                progressBar.setIndeterminate(true);
+//                progressBar.setVisibility(View.VISIBLE);
                 makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
 
             }
@@ -416,11 +422,11 @@ public class ViewTimelineLocation extends Fragment {
        //showProgress();
 
         String urlJsonArray = "http://35.189.189.215:8094/timeLine";
-        BigInteger bi1 =  new BigInteger("1499140800911");
-        BigInteger bi2 =  new BigInteger("1499227199911");
+//        BigInteger bi1 =  new BigInteger("1499140800911");
+//        BigInteger bi2 =  new BigInteger("1499227199911");
 
-//        BigInteger bi1 =  new BigInteger(startTime);
-//        BigInteger bi2 =  new BigInteger(endTime);
+        BigInteger bi1 =  new BigInteger(startTime);
+        BigInteger bi2 =  new BigInteger(endTime);
 
         //vts_id = "1234";
 
@@ -433,7 +439,7 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onResponse(JSONArray jsonArray) {
 
-                for (int i = 0; i <=20; i++) {
+                for (int i = 0; i <=25; i++) {
                     try {
                         JSONObject vehicleDetails = (JSONObject) jsonArray.get(i);
 
@@ -469,7 +475,6 @@ public class ViewTimelineLocation extends Fragment {
     }
 
     public void showProgress(){
-        coordinatorLayout.setVisibility(View.GONE);
         //nestedScrollView.setVisibility(View.GONE);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);

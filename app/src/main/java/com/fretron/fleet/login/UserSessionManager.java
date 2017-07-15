@@ -13,7 +13,6 @@ public class UserSessionManager {
     private Context _context;
     public static final String PREFER_NAME =   "P1" ;
     public static final String IS_USER_LOGIN =   "isUserLoggedIn" ;
-    public static final String PHONE =   "email" ;
     public static final String TOKEN =   "token" ;
 
     public  UserSessionManager(Context context){
@@ -23,10 +22,9 @@ public class UserSessionManager {
         editor = pref.edit();
     }
 
-    public void create_login_session(String email, String password){
+    public void create_login_session(String token){
         editor.putBoolean(IS_USER_LOGIN,true);
-        editor.putString(PHONE, email);
-        editor.putString(TOKEN,password);
+        editor.putString(TOKEN,token);
         editor.commit();
     }
 
@@ -34,7 +32,7 @@ public class UserSessionManager {
 
         if(!this.isUserLoggedIn()){
 
-            Intent i =  new Intent("com.sample.project_frectron.Phone_no");
+            Intent i =  new Intent("com.fretron.fleet.login.Phone_no");
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             _context.startActivity(i);
@@ -43,9 +41,8 @@ public class UserSessionManager {
         return false;
     }
 
-    HashMap<String,String> getUserDetails(){
+    public  HashMap<String,String> getUserDetails(){
         HashMap<String,String> user = new HashMap<>();
-        user.put(PHONE,pref.getString(PHONE,null));
         user.put(TOKEN,pref.getString(TOKEN,null));
         return user;
     }
@@ -54,7 +51,7 @@ public class UserSessionManager {
 
         editor.clear();
         editor.commit();
-        Intent i =  new Intent("com.sample.project_frectron.Phone_no");
+        Intent i =  new Intent("com.fretron.fleet.login.Phone_no");
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         _context.startActivity(i);

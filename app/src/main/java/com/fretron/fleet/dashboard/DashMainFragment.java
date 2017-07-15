@@ -8,10 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,7 +31,6 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -42,11 +38,9 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.fretron.fleet.ActivityListAdapter;
 import com.fretron.fleet.ActivityListItems;
-import com.fretron.fleet.LocationFragment;
 import com.fretron.fleet.Orientation;
 import com.fretron.fleet.R;
 import com.fretron.fleet.VolleyMain;
-import com.fretron.fleet.dashboard.DashBoard;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -56,17 +50,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import static com.fretron.fleet.R.id.fragment_container;
 import static com.google.android.gms.plus.internal.PlusCommonExtras.TAG;
 import static com.fretron.fleet.R.id.map;
 
@@ -80,14 +70,12 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
     private SQLiteDatabase sqLiteDatabase;
     private Orientation mOrientation;
     Menu menu;
-    String token, customer_id = "something";
+    String token, customer_id ;
     private ProgressDialog pDialog;
     ProgressBar progressBar;
-    private List<ActivityListItems> mCountryModel;
     TextView textView;
     Calendar calendar;
     Double speedDouble = 0.0;
-
 
     public DashMainFragment() {
         // Required empty public constructor
@@ -144,11 +132,12 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 //        try {
 //             String customerJson = getJson(split);
 //             JSONParser parser = new JSONParser();
-//             JSONObject json = (JSONObject) parser.parse(customerJson);
-//             customer_id = (String) json.get("customerId");
+//             org.json.simple.JSONObject json = (org.json.simple.JSONObject) parser.parse(customerJson);
+//             customer_id = (String) json.get("id");
 //
 //        } catch (Exception e) {
 //            Toast.makeText(getActivity()," Not working ",Toast.LENGTH_LONG).show();
+//            customer_id = "nothing" ;
 //            e.printStackTrace();
 //        }
 
@@ -365,7 +354,8 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
     private void makeJsonObjectRequest(String customer_id) {
         showpProgress();
-//        String urlJsonArray = "http://35.189.162.187:7098/query?customerId="+customer_id; //Sahi karna hai yeh
+
+        //String urlJsonArray = "http://35.189.189.215:8094/dashboard?customerId="+customer_id;
         String urlJsonArray = "http://35.189.189.215:8094/dashboard";
         JsonArrayRequest jsonObjReq = new JsonArrayRequest(urlJsonArray, new Response.Listener<org.json.JSONArray>() {
 
@@ -421,7 +411,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                                         .position(new LatLng(lat, lng))
                                         .title(vehicle_Id)
                                         .icon(BitmapDescriptorFactory
-                                                .defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                                                .fromResource(R.drawable.truck_icon)));
 
                                 break;
                             case 0:
@@ -465,7 +455,6 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
         VolleyMain.getInstance().addToRequestQueue(jsonObjReq);
     }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

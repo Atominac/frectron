@@ -7,7 +7,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings" translatable="false">Settings</string>
-    <string name="description" >ImageButton</string>
+    <string name="description">ImageButton</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Main DashBoard Fragment</string>
@@ -39,6 +39,10 @@
         <item>Offline Vehicles</item>
         <item>Stopped Vehicles</item>
     </string-array>
+
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 
 </resources>

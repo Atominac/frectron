@@ -1,6 +1,5 @@
 package com.fretron.fleet;
 
-
 import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
@@ -45,12 +44,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -365,6 +361,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
             public void onResponse(JSONArray jsonArray) {
 
                 String location = "NA";
+                String over_speed_speed = "NA";
                 for (int i = 0; i <= jsonArray.length(); i++) {
                     try {
                         parentTime = 0.0 ;
@@ -413,13 +410,18 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                             String over_speed_duration = inner_json.getString("duration");
                             parentTime = parentTime + Double.parseDouble(over_speed_duration);
 
-                            String over_speed_speed = inner_json.getString("averageSpeed");
+                            over_speed_speed = inner_json.getString("averageSpeed");
 
-
-                            averageSpeed= Math.round((Double.parseDouble(over_speed_speed)/1000) * 100.0) / 100.0;
-
-                            calculatedDistance = Double.parseDouble(over_speed_duration)*Double.parseDouble(over_speed_speed);
-                            totalSubDistance = (totalSubDistance + calculatedDistance)/1000;
+                            if (!over_speed_speed.equals("null")){
+                                averageSpeed= Math.round((Double.parseDouble(over_speed_speed)/1000) * 100.0) / 100.0;
+                                calculatedDistance = Double.parseDouble(over_speed_duration)*Double.parseDouble(over_speed_speed);
+                                totalSubDistance = (totalSubDistance + calculatedDistance)/1000;
+                            }
+                            else {
+                                averageSpeed= 0.0;
+                                calculatedDistance = 0.0;
+                                totalSubDistance = 0.0;
+                            }
 
                             OverspeedingChildListDetails activityItems = new OverspeedingChildListDetails(netDateTime,over_speed_duration + " msec",String.valueOf(averageSpeed)+ "\nKmph",location);
                             childs.add(activityItems);

@@ -3,6 +3,7 @@ package com.fretron.fleet;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.icu.text.TimeZoneFormat;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -49,7 +50,7 @@ public class DateDialog extends DialogFragment implements DatePickerDialog.OnDat
         // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         calendar.set(year, month, day, 0,0,0);
         long startTime = calendar.getTimeInMillis();
         String selected_startTime = Long.toString(startTime);

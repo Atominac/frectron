@@ -79,17 +79,17 @@ public class Phone_no extends AppCompatActivity {
                 EditText editText = (EditText)findViewById(R.id.editText);
                 String num1 = editText.getText().toString();
 
-                ViewFlipper viewFlipper = (ViewFlipper)findViewById(R.id.viewFlipper);
-                viewFlipper.setInAnimation(Phone_no.this, R.anim.view_transition_in_left);
-                viewFlipper.setOutAnimation(Phone_no.this, R.anim.view_transition_out_left);
-                viewFlipper.showNext();
+//                ViewFlipper viewFlipper = (ViewFlipper)findViewById(R.id.viewFlipper);
+//                viewFlipper.setInAnimation(Phone_no.this, R.anim.view_transition_in_left);
+//                viewFlipper.setOutAnimation(Phone_no.this, R.anim.view_transition_out_left);
+//                viewFlipper.showNext();
 
-//                if (!num1.equals("") && num1.length()==10){
-//                    mAuthTask = new UserLoginTask(num1);
-//                    mAuthTask.execute((String) null);
-//                }
-//                else
-//                    Toast.makeText(Phone_no.this,"Please enter a valid no.",Toast.LENGTH_SHORT).show();
+                if (!num1.equals("") && num1.length()==10){
+                    mAuthTask = new UserLoginTask(num1);
+                    mAuthTask.execute((String) null);
+                }
+                else
+                    Toast.makeText(Phone_no.this,"Please enter a valid no.",Toast.LENGTH_SHORT).show();
 
 
             }
@@ -103,16 +103,14 @@ public class Phone_no extends AppCompatActivity {
                 EditText editText2 = (EditText)findViewById(R.id.editText2);
                 String num1 = editText2.getText().toString();
 
-                Intent intent = new Intent("com.fretron.fleet.dashboard.DashBoard");
-                startActivity(intent);
+//                Intent intent = new Intent("com.fretron.fleet.dashboard.DashBoard");
+//                startActivity(intent);
 
-
-//                if (!num1.equals("") && num1.length()==6){
-//                    makeJsonObjectRequest();
-//                }
-//                else
-//                    Toast.makeText(Phone_no.this,"Invalid OTP",Toast.LENGTH_SHORT).show();
-
+                if (!num1.equals("") && num1.length()==6){
+                    makeJsonObjectRequest();
+                }
+                else
+                    Toast.makeText(Phone_no.this,"Invalid OTP",Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -311,8 +309,8 @@ public class Phone_no extends AppCompatActivity {
                                         //Toast.makeText(getApplicationContext(),jsonResponse2[0],Toast.LENGTH_SHORT).show();
                                         if (validity.equals("true")){
                                             EditText editText = (EditText)findViewById(R.id.editText);
-                                            String phoneNo = editText.getText().toString();
-                                            session.create_login_session(phoneNo,token);
+                                            //String phoneNo = editText.getText().toString();
+                                            session.create_login_session(token);
                                             Intent intent = new Intent("com.fretron.fleet.dashboard.DashBoard");
                                             intent.putExtra("Token",token);
                                             startActivity(intent);

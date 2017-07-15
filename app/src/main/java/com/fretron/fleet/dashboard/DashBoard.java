@@ -1,5 +1,6 @@
 package com.fretron.fleet.dashboard;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
@@ -28,6 +31,7 @@ import com.fretron.fleet.ReportRunningFragment;
 import com.fretron.fleet.ReportStoppedFragment;
 import com.fretron.fleet.SignOutFragment;
 import com.fretron.fleet.Statisticsfragment;
+import com.fretron.fleet.login.UserSessionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +42,7 @@ public class DashBoard extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
     NavigationView navigationView = null ;
     Toolbar toolbar = null ;
+    UserSessionManager session ;
     ExpandableListView expListView ;
 
     @Override
@@ -163,6 +168,8 @@ public class DashBoard extends AppCompatActivity
                         return true;
 
                     case 5 :
+                        session = new UserSessionManager(getApplicationContext());
+                        session.logout();
                         SignOutFragment signOutFragment = new SignOutFragment();
                         FragmentTransaction signoutTransaction = getSupportFragmentManager().beginTransaction();
                         signoutTransaction.replace(R.id.fragment_container,signOutFragment);
@@ -326,5 +333,6 @@ public class DashBoard extends AppCompatActivity
     public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);
     }
+
 
 }
