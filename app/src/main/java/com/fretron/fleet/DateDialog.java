@@ -19,7 +19,6 @@ public class DateDialog extends DialogFragment implements DatePickerDialog.OnDat
 
     public DateDialog(ViewTimelineLocation viewTimelineLocation) {
         this.viewTimelineLocation = viewTimelineLocation;
-        // Required empty public constructor
     }
 
     @NonNull
@@ -39,6 +38,8 @@ public class DateDialog extends DialogFragment implements DatePickerDialog.OnDat
     }
 
     public void populateSetDate(int year, int month, int day) {
+        viewTimelineLocation.mDataList.clear();
+        viewTimelineLocation.mTimeLineAdapter.notifyDataSetChanged();
         Button button = (Button)getActivity().findViewById(R.id.location_date_selector_button);
         button.setText(day+"/"+month+"/"+year);
 
@@ -51,13 +52,13 @@ public class DateDialog extends DialogFragment implements DatePickerDialog.OnDat
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-        calendar.set(year, month, day, 0,0,0);
+        calendar.set(year, month-1, day, 0,0,0);
         long startTime = calendar.getTimeInMillis();
         String selected_startTime = Long.toString(startTime);
 
         Calendar calendar2 = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getDefault());
-        calendar2.set(year, month, day, 23,59, 59);
+        calendar2.set(year, month-1, day, 23,59, 59);
         long endTime = calendar2.getTimeInMillis();
         String selected_endTime = Long.toString(endTime);
         viewTimelineLocation.makeJsonObjectRequest(selected_startTime,selected_endTime,viewTimelineLocation.vehicle_Id);

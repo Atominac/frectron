@@ -1,7 +1,9 @@
 package com.fretron.fleet;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -25,7 +27,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -33,14 +37,18 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
 import com.fretron.fleet.dashboard.DashBoard;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,12 +71,8 @@ public class ViewTimelineLocation extends Fragment {
     protected View mView;
     GoogleMap googleMap;
     private MapView mapView;
-    Menu menu ;
-    SelectedDate mSelectedDate;
-    private RecyclerView vehicleList_recyclerView , mRecyclerView;
-    private TimeLineAdapter mTimeLineAdapter;
-    private List<TimeLineModel> mDataList = new ArrayList<>();
-    ArrayList<String> vehicle_list = new ArrayList<>();
+    private RecyclerView mRecyclerView;
+    List<TimeLineModel> mDataList = new ArrayList<>();
     private Orientation mOrientation;
     private boolean mWithLinePadding;
     Context context;
@@ -78,11 +82,14 @@ public class ViewTimelineLocation extends Fragment {
     String vehicle_Id,vehicle_name;
     ProgressBar progressBar;
     CoordinatorLayout coordinatorLayout;
-    NestedScrollView nestedScrollView;
     String start_date_epo , end_date_epo ;
     private UserLoginTask mAuthTask = null;
     String startPosition = "";
     Calendar calendar ;
+    TimeLineAdapter mTimeLineAdapter ;
+    TimeLineModel timeLineModel ;
+    TextView noText ;
+    private ProgressDialog pDialog;
 
     public ViewTimelineLocation() {
         // Required empty public constructor
@@ -104,14 +111,7 @@ public class ViewTimelineLocation extends Fragment {
         if (googleMap == null && mapsSupported) {
             mapView = (MapView) getActivity().findViewById(map2);
             googleMap = mapView.getMap();
-            Marker marker = googleMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(28.452839, 77.069670))
-                    .title("Vehicle Locations")
-                    .icon(BitmapDescriptorFactory
-                            .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
             googleMap.getUiSettings().setZoomControlsEnabled(true);
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.452839,77.069670), 15));
-
             //setup markers etc...
         }
     }
@@ -135,8 +135,13 @@ public class ViewTimelineLocation extends Fragment {
 
         coordinatorLayout = (CoordinatorLayout) mView.findViewById(R.id.coordinate_layout_timeline);
         progressBar = (ProgressBar)mView.findViewById(R.id.progressBar_location_history);
-        nestedScrollView = (NestedScrollView)mView.findViewById(R.id.nestedScroll_timeline);
+        mRecyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView);
         button = (Button)mView.findViewById(R.id.location_date_selector_button);
+        noText = (TextView) mView.findViewById(R.id.no_data_image);
+
+        pDialog = new ProgressDialog(mView.getContext());
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -153,28 +158,16 @@ public class ViewTimelineLocation extends Fragment {
         calendar.setTimeZone(TimeZone.getDefault());
         calendar.set(mYear, mMonth , mDay, 0,0,0);
         long startTime = calendar.getTimeInMillis();
-        start_date_epo = Long.toString(startTime);
+       // start_date_epo = Long.toString(startTime);
 
         Calendar calendar2 = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getDefault());
         calendar2.set(mYear, mMonth , mDay, 23,59, 59);
         long endTime = calendar2.getTimeInMillis();
-        end_date_epo = Long.toString(endTime);
+       // end_date_epo = Long.toString(endTime);
 
-//       Date d =  new Date();
-//        d.setHours(0);
-//        d.setMinutes(0);
-//        d.setSeconds(0);
-//        Long start = d.getTime();
-//
-//        d.setHours(23);
-//        d.setMinutes(59);
-//        d.setSeconds(59);
-//        Long end = d.getTime();
-//
-//        Log.d("sldf" , "" +  start + ".............." + end);
-//
-//        initView();
+        start_date_epo = "1499140800911" ;
+        end_date_epo = "1499227199911" ;
         makeJsonObjectRequest(start_date_epo, end_date_epo ,vehicle_Id);
 
         button.setOnClickListener(new View.OnClickListener() {
@@ -193,6 +186,8 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onClick(View view) {
 
+                mDataList.clear();
+                mTimeLineAdapter.notifyDataSetChanged();
                 String string = button.getText().toString();
                 String[] parts = string.split("/");
                 int day = Integer.parseInt(parts[0]);
@@ -208,15 +203,11 @@ public class ViewTimelineLocation extends Fragment {
                 long startTime = calendar.getTimeInMillis();
                 String selected_startTime = Long.toString(startTime);
 
-                Calendar calendar2 = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-                calendar2.set(year, month-1, day-1, 23,59, 59);
-                long endTime = calendar2.getTimeInMillis();
+
+                calendar.set(year, month-1, day-1, 23,59, 59);
+                long endTime = calendar.getTimeInMillis();
                 String selected_endTime = Long.toString(endTime);
                 button.setText(day-1+"/"+month+"/"+year);
-//                nestedScrollView.setVisibility(View.GONE);
-//                progressBar.setIndeterminate(true);
-//                progressBar.setVisibility(View.VISIBLE);
                 makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
 
             }
@@ -227,6 +218,8 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onClick(View view) {
 
+                mDataList.clear();
+                mTimeLineAdapter.notifyDataSetChanged();
                 String string = button.getText().toString();
                 String[] parts = string.split("/");
                 int day = Integer.parseInt(parts[0]);
@@ -237,20 +230,15 @@ public class ViewTimelineLocation extends Fragment {
                 // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
 
                 Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getDefault());
+                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
                 calendar.set(year, month, day+1, 0,0,0);
                 long startTime = calendar.getTimeInMillis();
                 String selected_startTime = Long.toString(startTime);
 
-                Calendar calendar2 = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getDefault());
-                calendar2.set(year, month, day+1, 23,59, 59);
-                long endTime = calendar2.getTimeInMillis();
+                calendar.set(year, month, day+1, 23,59, 59);
+                long endTime = calendar.getTimeInMillis();
                 String selected_endTime = Long.toString(endTime);
                 button.setText(day+1+"/"+month+"/"+year);
-//                nestedScrollView.setVisibility(View.GONE);
-//                progressBar.setIndeterminate(true);
-//                progressBar.setVisibility(View.VISIBLE);
                 makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
 
             }
@@ -337,7 +325,6 @@ public class ViewTimelineLocation extends Fragment {
     public class UserLoginTask extends AsyncTask<String, Void, String[]> {
         private  Double lat , lng ;
         private  String date ;
-        TimeLineModel timeLineModel ;
 
         UserLoginTask(Double latitude , Double longitude , String dateTime) {
             lat = latitude ;
@@ -385,11 +372,7 @@ public class ViewTimelineLocation extends Fragment {
 
         @Override
         protected void onPreExecute() {
-
-            coordinatorLayout.setVisibility(View.GONE);
-            //nestedScrollView.setVisibility(View.GONE);
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
+            showProgress();
         }
 
         @Override
@@ -397,19 +380,10 @@ public class ViewTimelineLocation extends Fragment {
             mAuthTask = null;
             timeLineModel = new TimeLineModel(arr[0], arr[1], OrderStatus.COMPLETED);
             mDataList.add(timeLineModel);
-            LinearLayoutManager layoutManager
-                    = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-            mRecyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView);
-            mRecyclerView.setLayoutManager(layoutManager);
-            mRecyclerView.setHasFixedSize(true);
-            // mDataList.add(new TimeLineModel("Huda city center", "2017-02-12 08:00", OrderStatus.COMPLETED));
             mTimeLineAdapter = new TimeLineAdapter(mDataList, mOrientation, mWithLinePadding);
+            mRecyclerView.scrollToPosition(mDataList.size());
+            mRecyclerView.setLayoutManager(getLinearLayoutManager());
             mRecyclerView.setAdapter(mTimeLineAdapter);
-            coordinatorLayout.setVisibility(View.VISIBLE);
-            //nestedScrollView.setVisibility(View.VISIBLE);
-            progressBar.setIndeterminate(false);
-            progressBar.setVisibility(View.GONE);
-
         }
 
         @Override
@@ -419,7 +393,6 @@ public class ViewTimelineLocation extends Fragment {
     }
 
     public void makeJsonObjectRequest(String startTime,String endTime , String vts_id) {
-       //showProgress();
 
         String urlJsonArray = "http://35.189.189.215:8094/timeLine";
 //        BigInteger bi1 =  new BigInteger("1499140800911");
@@ -427,8 +400,6 @@ public class ViewTimelineLocation extends Fragment {
 
         BigInteger bi1 =  new BigInteger(startTime);
         BigInteger bi2 =  new BigInteger(endTime);
-
-        //vts_id = "1234";
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put( "startTime", bi1 );
@@ -439,13 +410,32 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onResponse(JSONArray jsonArray) {
 
-                for (int i = 0; i <=25; i++) {
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                for (int i = 0; i <=jsonArray.length(); i++) {
                     try {
                         JSONObject vehicleDetails = (JSONObject) jsonArray.get(i);
 
                         JSONObject  start_position_object = (JSONObject) vehicleDetails.get("startPosition");
                         Double lat = start_position_object.getDouble("latitude");
                         Double lng = start_position_object.getDouble("longitude");
+
+                        JSONObject  end_position_object = (JSONObject) vehicleDetails.get("endPosition");
+                        Double endlat = end_position_object.getDouble("latitude");
+                        Double endlng = end_position_object.getDouble("longitude");
+
+
+                        Polyline line = googleMap.addPolyline(new PolylineOptions()
+                                .add(new LatLng(lat, lng), new LatLng(endlat, endlng))
+                                .width(5)
+                                .color(Color.BLUE));
+
+                        Marker marker = googleMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(lat, lng))
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+
+                        builder.include(marker.getPosition());
+
                         String dateTime = vehicleDetails.getString("startTime");
                         mAuthTask = new UserLoginTask(lat,lng,dateTime);
                         mAuthTask.execute((String) null);
@@ -453,13 +443,24 @@ public class ViewTimelineLocation extends Fragment {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                } hideProgress();
+                }
+
+                LatLngBounds bounds = builder.build();
+                int padding = 0;
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                googleMap.moveCamera(cu);
+                googleMap.animateCamera(cu);
+                hideProgress();
 
             }
         }, new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                timeLineModel = new TimeLineModel(("no data"), ("no data") , OrderStatus.COMPLETED);
+                mDataList.add(timeLineModel);
+                mTimeLineAdapter = new TimeLineAdapter(mDataList, mOrientation, mWithLinePadding);
+                mRecyclerView.setAdapter(mTimeLineAdapter);
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
             }
         })
@@ -475,16 +476,25 @@ public class ViewTimelineLocation extends Fragment {
     }
 
     public void showProgress(){
-        //nestedScrollView.setVisibility(View.GONE);
+        coordinatorLayout.setVisibility(View.GONE);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
     }
 
     public void hideProgress(){
         coordinatorLayout.setVisibility(View.VISIBLE);
-        //nestedScrollView.setVisibility(View.GONE);
         progressBar.setIndeterminate(false);
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void showpDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hidepDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
     }
 
 

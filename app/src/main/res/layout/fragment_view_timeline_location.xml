@@ -39,7 +39,7 @@
 
                 <com.google.android.gms.maps.MapView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="300dp"
                     android:id="@+id/map2"
                     android:name="com.google.android.gms.maps.MapFragment"
                     app:layout_collapseMode="parallax"
@@ -47,26 +47,13 @@
                     android:fitsSystemWindows="true">
                 </com.google.android.gms.maps.MapView>
 
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
-
-        <android.support.v4.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/nestedScroll_timeline"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:id="@+id/linear_of_buttons"
+                    android:layout_marginTop="240dp">
 
                     <ImageButton
                         android:layout_width="60dp"
@@ -92,16 +79,28 @@
 
                 </LinearLayout>
 
-                <android.support.v7.widget.RecyclerView
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:clipToPadding="false"/>
+                    android:clipToPadding="false"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    />
 
-            </LinearLayout>
-
-        </android.support.v4.widget.NestedScrollView>
+    <TextView
+        android:id="@+id/no_data_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="350dp"
+        android:text="No Data found"
+        android:textColor="#FF0000"
+        android:textSize="20sp"
+        android:visibility="invisible" />
 
 </android.support.design.widget.CoordinatorLayout>
 

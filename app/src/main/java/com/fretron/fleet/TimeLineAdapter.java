@@ -62,6 +62,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineViewHolder> {
            holder.mDate.setVisibility(View.GONE);
 
        holder.mMessage.setText(timeLineModel.getMessage());
+
     }
 
     @Override
