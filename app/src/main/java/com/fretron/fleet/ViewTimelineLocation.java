@@ -8,7 +8,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -64,10 +66,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+
+import static com.fretron.fleet.R.id.start;
 import static com.google.android.gms.plus.internal.PlusCommonExtras.TAG;
 import static com.fretron.fleet.R.id.map2;
 
-public class ViewTimelineLocation extends Fragment {
+public class ViewTimelineLocation extends Fragment  implements View.OnClickListener {
     protected View mView;
     GoogleMap googleMap;
     private MapView mapView;
@@ -84,12 +88,19 @@ public class ViewTimelineLocation extends Fragment {
     CoordinatorLayout coordinatorLayout;
     String start_date_epo , end_date_epo ;
     private UserLoginTask mAuthTask = null;
+    public AsyncTask<String , Void , String> myGeocoderTask ;
     String startPosition = "";
     Calendar calendar ;
     TimeLineAdapter mTimeLineAdapter ;
     TimeLineModel timeLineModel ;
     TextView noText ;
     private ProgressDialog pDialog;
+    Marker marker ;
+    Polyline line ;
+    LinearLayoutManager linearLayoutManager;
+    AppBarLayout appBarLayout ;
+    int recyclerIndex ;
+    List<Address> start_position_string = null;
 
     public ViewTimelineLocation() {
         // Required empty public constructor
@@ -134,10 +145,26 @@ public class ViewTimelineLocation extends Fragment {
                 .setActionBarTitle(vehicle_name);
 
         coordinatorLayout = (CoordinatorLayout) mView.findViewById(R.id.coordinate_layout_timeline);
+        appBarLayout = (AppBarLayout)mView.findViewById(R.id.appBar);
+        if (appBarLayout.getLayoutParams() != null) {
+            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+            AppBarLayout.Behavior appBarLayoutBehaviour = new AppBarLayout.Behavior();
+            appBarLayoutBehaviour.setDragCallback(new AppBarLayout.Behavior.DragCallback() {
+                @Override
+                public boolean canDrag(@NonNull AppBarLayout appBarLayout) {
+                    return false;
+                }
+            });
+            layoutParams.setBehavior(appBarLayoutBehaviour);
+        }
+
         progressBar = (ProgressBar)mView.findViewById(R.id.progressBar_location_history);
         mRecyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView);
         button = (Button)mView.findViewById(R.id.location_date_selector_button);
+        button.setOnClickListener(this);
         noText = (TextView) mView.findViewById(R.id.no_data_image);
+
+        linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
 
         pDialog = new ProgressDialog(mView.getContext());
         pDialog.setMessage("Please wait...");
@@ -155,37 +182,119 @@ public class ViewTimelineLocation extends Fragment {
                         .append(mYear).append(" "));
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         calendar.set(mYear, mMonth , mDay, 0,0,0);
         long startTime = calendar.getTimeInMillis();
-       // start_date_epo = Long.toString(startTime);
+        start_date_epo = Long.toString(startTime);
 
         Calendar calendar2 = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         calendar2.set(mYear, mMonth , mDay, 23,59, 59);
         long endTime = calendar2.getTimeInMillis();
-       // end_date_epo = Long.toString(endTime);
+        end_date_epo = Long.toString(endTime);
 
-        start_date_epo = "1499140800911" ;
-        end_date_epo = "1499227199911" ;
+//        start_date_epo = "1499140800911" ;
+//        end_date_epo = "1499227199911" ;
         makeJsonObjectRequest(start_date_epo, end_date_epo ,vehicle_Id);
+//
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                DateDialog pickerFrag = new DateDialog(ViewTimelineLocation.this);
+//                pickerFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+//                pickerFrag.show(getFragmentManager(), "DATE_PICKER");
+//
+//
+//            }
+//        });
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        previousDate = (ImageButton)mView.findViewById(R.id.date_previous_button);
+        previousDate.setOnClickListener(this);
+//        previousDate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                mAuthTask.cancel(true);
+//                mDataList.clear();
+//                mTimeLineAdapter.notifyDataSetChanged();
+//                String string = button.getText().toString();
+//                String[] parts = string.split("/");
+//                int day = Integer.parseInt(parts[0]);
+//                int month = Integer.parseInt(parts[1]);
+//                String year_String = parts[2];
+//                String repalce_space = year_String.replaceAll("\\s+","");
+//                int year = Integer.parseInt(repalce_space);
+//                // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+//                calendar.set(year, month-1, day-1, 0,0,0);
+//                long startTime = calendar.getTimeInMillis();
+//                String selected_startTime = Long.toString(startTime);
+//
+//
+//                calendar.set(year, month-1, day-1, 23,59, 59);
+//                long endTime = calendar.getTimeInMillis();
+//                String selected_endTime = Long.toString(endTime);
+//                button.setText(day-1+"/"+month+"/"+year);
+//                makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
+//
+//            }
+//        });
+
+        nextDate = (ImageButton)mView.findViewById(R.id.date_next_button);
+        nextDate.setOnClickListener(this);
+//        nextDate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                mDataList.clear();
+//                mTimeLineAdapter.notifyDataSetChanged();
+//                String string = button.getText().toString();
+//                String[] parts = string.split("/");
+//                int day = Integer.parseInt(parts[0]);
+//                int month = Integer.parseInt(parts[1]);
+//                String year_String = parts[2];
+//                String repalce_space = year_String.replaceAll("\\s+","");
+//                int year = Integer.parseInt(repalce_space);
+//                // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+//                calendar.set(year, month, day+1, 0,0,0);
+//                long startTime = calendar.getTimeInMillis();
+//                String selected_startTime = Long.toString(startTime);
+//
+//                calendar.set(year, month, day+1, 23,59, 59);
+//                long endTime = calendar.getTimeInMillis();
+//                String selected_endTime = Long.toString(endTime);
+//                button.setText(day+1+"/"+month+"/"+year);
+//                makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
+//
+//            }
+//        });
+
+        mapView = (MapView) mView.findViewById(map2);
+        setHasOptionsMenu(true);
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+
+        return view;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            case R.id.location_date_selector_button:
                 DateDialog pickerFrag = new DateDialog(ViewTimelineLocation.this);
                 pickerFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
                 pickerFrag.show(getFragmentManager(), "DATE_PICKER");
+                break;
 
-
-            }
-        });
-
-        previousDate = (ImageButton)mView.findViewById(R.id.date_previous_button);
-        previousDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
+            case R.id.date_previous_button:
+                if(myGeocoderTask != null && !myGeocoderTask.isCancelled())
+                    myGeocoderTask.cancel(true);
                 mDataList.clear();
                 mTimeLineAdapter.notifyDataSetChanged();
                 String string = button.getText().toString();
@@ -209,47 +318,36 @@ public class ViewTimelineLocation extends Fragment {
                 String selected_endTime = Long.toString(endTime);
                 button.setText(day-1+"/"+month+"/"+year);
                 makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
+                break;
 
-            }
-        });
-
-        nextDate = (ImageButton)mView.findViewById(R.id.date_next_button);
-        nextDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
+            case R.id.date_next_button:
+                if(myGeocoderTask != null && !myGeocoderTask.isCancelled())
+                    myGeocoderTask.cancel(true);
                 mDataList.clear();
                 mTimeLineAdapter.notifyDataSetChanged();
-                String string = button.getText().toString();
-                String[] parts = string.split("/");
-                int day = Integer.parseInt(parts[0]);
-                int month = Integer.parseInt(parts[1]);
-                String year_String = parts[2];
-                String repalce_space = year_String.replaceAll("\\s+","");
-                int year = Integer.parseInt(repalce_space);
+                String string2 = button.getText().toString();
+                String[] parts2 = string2.split("/");
+                int day2 = Integer.parseInt(parts2[0]);
+                int month2 = Integer.parseInt(parts2[1]);
+                String year_String2 = parts2[2];
+                String repalce_space2 = year_String2.replaceAll("\\s+","");
+                int year2 = Integer.parseInt(repalce_space2);
                 // Toast.makeText(getActivity(),date + month + year , Toast.LENGTH_LONG ).show();
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-                calendar.set(year, month, day+1, 0,0,0);
-                long startTime = calendar.getTimeInMillis();
-                String selected_startTime = Long.toString(startTime);
+                Calendar calendar2 = Calendar.getInstance();
+                calendar2.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+                calendar2.set(year2, month2, day2+1, 0,0,0);
+                long startTime2 = calendar2.getTimeInMillis();
+                String selected_startTime2 = Long.toString(startTime2);
 
-                calendar.set(year, month, day+1, 23,59, 59);
-                long endTime = calendar.getTimeInMillis();
-                String selected_endTime = Long.toString(endTime);
-                button.setText(day+1+"/"+month+"/"+year);
-                makeJsonObjectRequest(selected_startTime,selected_endTime,vehicle_Id);
+                calendar2.set(year2, month2, day2+1, 23,59, 59);
+                long endTime2 = calendar2.getTimeInMillis();
+                String selected_endTime2 = Long.toString(endTime2);
+                button.setText(day2+1+"/"+month2+"/"+year2);
+                makeJsonObjectRequest(selected_startTime2,selected_endTime2,vehicle_Id);
 
-            }
-        });
 
-        mapView = (MapView) mView.findViewById(map2);
-        setHasOptionsMenu(true);
-
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-
-        return view;
+        }
     }
 
     @Override
@@ -314,81 +412,67 @@ public class ViewTimelineLocation extends Fragment {
         mapView.onLowMemory();
     }
 
-    private LinearLayoutManager getLinearLayoutManager() {
-        if (mOrientation == Orientation.HORIZONTAL) {
-            return new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        } else {
-            return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        }
-    }
+    private class UserLoginTask extends AsyncTask<String, Void, String> {
+        private  double[] latArray , longArray ;
 
-    public class UserLoginTask extends AsyncTask<String, Void, String[]> {
-        private  Double lat , lng ;
-        private  String date ;
-
-        UserLoginTask(Double latitude , Double longitude , String dateTime) {
-            lat = latitude ;
-            lng = longitude ;
-            date = dateTime ;
+        UserLoginTask(double[] laArray , double[] lnArray) {
+            latArray = laArray ;
+            longArray = lnArray ;
+            //mAuthTask = UserLoginTask.this;
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
-            String[] arr = new String[2];
-            // TODO: attempt authentication against a network service.
-            try {
-                Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-                List<Address> start_position_string = null;
-                start_position_string = gcd.getFromLocation(lat, lng, 1);
-                startPosition = "Unknown Location" ;
-                if (start_position_string.size()!=0){
-                    startPosition = start_position_string.get(0).getAddressLine(0);
+        protected String doInBackground(String... params) {
+
+            if (!isCancelled()) {
+                try {
+
+                    Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
+
+                    for (recyclerIndex = 0; recyclerIndex < latArray.length - 1; recyclerIndex++) {
+                        start_position_string = gcd.getFromLocation(latArray[recyclerIndex], longArray[recyclerIndex], 1);
+                        if (start_position_string.size() != 0) {
+                            String city = start_position_string.get(0).getLocality();
+                            String state = start_position_string.get(0).getAdminArea();
+                            startPosition = start_position_string.get(0).getAddressLine(0) + "\n" +
+                                    city + "\n" + state;
+                        }
+                        else
+                            startPosition = "Unknown Location";
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                               try {
+                                   mDataList.get(recyclerIndex).setMessage(startPosition);
+                                   mTimeLineAdapter.notifyDataSetChanged();
+                               }catch (Exception e){
+                                   Log.w("AsynkTask : " , e.getMessage());
+                               }
+                            }
+                        });
+
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-                calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(Long.parseLong(date));
-
-                int yy = calendar.get(Calendar.YEAR);
-                int mm = calendar.get(Calendar.MONTH);
-                int dd = calendar.get(Calendar.DAY_OF_MONTH);
-                int hh = calendar.get(Calendar.HOUR_OF_DAY);
-                int mi = calendar.get(Calendar.MINUTE);
-
-                String netDateTime = String.valueOf(dd)+ "/" +
-                        String.valueOf(mm)+  "/" +
-                        String.valueOf(yy)+  " " +
-                        String.valueOf(hh)+  ":" +
-                        String.valueOf(mi);
-
-                arr[0] = startPosition ;
-                arr[1]= netDateTime ;
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
-            return arr;
+            return null;
         }
 
         @Override
         protected void onPreExecute() {
             showProgress();
-        }
 
-        @Override
-        protected void onPostExecute(String[] arr) {
-            mAuthTask = null;
-            timeLineModel = new TimeLineModel(arr[0], arr[1], OrderStatus.COMPLETED);
-            mDataList.add(timeLineModel);
-            mTimeLineAdapter = new TimeLineAdapter(mDataList, mOrientation, mWithLinePadding);
-            mRecyclerView.scrollToPosition(mDataList.size());
-            mRecyclerView.setLayoutManager(getLinearLayoutManager());
-            mRecyclerView.setAdapter(mTimeLineAdapter);
+
         }
 
         @Override
         protected void onCancelled() {
-            mAuthTask = null;
+            mAuthTask.cancel(true);
         }
     }
 
@@ -410,6 +494,11 @@ public class ViewTimelineLocation extends Fragment {
             @Override
             public void onResponse(JSONArray jsonArray) {
 
+                double[] latArray = new double[jsonArray.length()];
+                double[] longArray = new double[jsonArray.length()] ;
+
+                int arrayIndex = 0 ;
+
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                 for (int i = 0; i <=jsonArray.length(); i++) {
                     try {
@@ -424,32 +513,61 @@ public class ViewTimelineLocation extends Fragment {
                         Double endlng = end_position_object.getDouble("longitude");
 
 
-                        Polyline line = googleMap.addPolyline(new PolylineOptions()
+                        line = googleMap.addPolyline(new PolylineOptions()
                                 .add(new LatLng(lat, lng), new LatLng(endlat, endlng))
                                 .width(5)
                                 .color(Color.BLUE));
 
-                        Marker marker = googleMap.addMarker(new MarkerOptions()
+                        marker = googleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(lat, lng))
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
                         builder.include(marker.getPosition());
 
                         String dateTime = vehicleDetails.getString("startTime");
-                        mAuthTask = new UserLoginTask(lat,lng,dateTime);
-                        mAuthTask.execute((String) null);
+
+                        calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(Long.parseLong(dateTime));
+
+                        int yy = calendar.get(Calendar.YEAR);
+                        int mm = calendar.get(Calendar.MONTH)+ 1 ;
+                        int dd = calendar.get(Calendar.DAY_OF_MONTH);
+                        int hh = calendar.get(Calendar.HOUR_OF_DAY);
+                        int mi = calendar.get(Calendar.MINUTE);
+
+                        String netDateTime = String.valueOf(dd)+ "/" +
+                                String.valueOf(mm)+  "/" +
+                                String.valueOf(yy)+  " " +
+                                String.valueOf(hh)+  ":" +
+                                String.valueOf(mi);
+
+                        timeLineModel = new TimeLineModel("Location not available", netDateTime , OrderStatus.COMPLETED);
+                        mDataList.add(timeLineModel);
+
+
+                        latArray[arrayIndex] = lat ;
+                        longArray[arrayIndex]= lng ;
+
+                        arrayIndex++;
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
 
+
+                mAuthTask = new UserLoginTask(latArray,longArray);
+                myGeocoderTask  =  mAuthTask.execute((String) null);
                 LatLngBounds bounds = builder.build();
                 int padding = 0;
                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                 googleMap.moveCamera(cu);
                 googleMap.animateCamera(cu);
+                mTimeLineAdapter = new TimeLineAdapter(mDataList, mOrientation, mWithLinePadding);
+                mRecyclerView.scrollToPosition(mDataList.size());
+                mRecyclerView.setLayoutManager(linearLayoutManager);
+                mRecyclerView.setAdapter(mTimeLineAdapter);
+
                 hideProgress();
 
             }
@@ -457,11 +575,16 @@ public class ViewTimelineLocation extends Fragment {
 
             @Override
             public void onErrorResponse(VolleyError error) {
+
                 timeLineModel = new TimeLineModel(("no data"), ("no data") , OrderStatus.COMPLETED);
                 mDataList.add(timeLineModel);
                 mTimeLineAdapter = new TimeLineAdapter(mDataList, mOrientation, mWithLinePadding);
                 mRecyclerView.setAdapter(mTimeLineAdapter);
+                googleMap.clear();
+                googleMap.getUiSettings().setZoomControlsEnabled(true);
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(28.38, 77.12), 4));
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
+                hideProgress();
             }
         })
         {
@@ -496,6 +619,5 @@ public class ViewTimelineLocation extends Fragment {
         if (pDialog.isShowing())
             pDialog.dismiss();
     }
-
 
 }

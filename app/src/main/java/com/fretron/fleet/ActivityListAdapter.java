@@ -45,7 +45,6 @@ public class ActivityListAdapter extends RecyclerView.Adapter<ActivityListAdapte
     @Override
     public ActivityListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_content_list, parent, false);
-//        ((Activity) mContext).getFragmentManager();
 
     return new ActivityListAdapter.ViewHolder(itemView);
     }
@@ -58,13 +57,25 @@ public class ActivityListAdapter extends RecyclerView.Adapter<ActivityListAdapte
         holder.starting_date.setText(activityListItems.getStarting_date());
         holder.location.setText(activityListItems.getLocation());
         holder.status.setText(activityListItems.getStatus());
-        if (activityListItems.getStatus().equals("offline"))
-            holder.status.setBackgroundColor(Color.parseColor("#ffff00"));
 
-        else if (activityListItems.getStatus().equals("stopped")) {
-            holder.status.setBackgroundColor(Color.parseColor("#ff0000"));
-            holder.status.setTextColor(Color.parseColor("#ffffff"));
+        switch (activityListItems.getStatus()) {
+            case "offline":
+                holder.status.setBackgroundColor(Color.parseColor("#ff0000"));
+                holder.status.setTextColor(Color.parseColor("#ffffff"));
+                break;
+            case "stopped":
+                holder.status.setBackgroundColor(Color.parseColor("#ffff00"));
+                break;
+            case "moving":
+                holder.status.setBackgroundColor(Color.parseColor("#228B22"));
+                holder.status.setTextColor(Color.parseColor("#ffffff"));
+                break;
+            case "overspeeding":
+                holder.status.setBackgroundColor(Color.parseColor("#FF4500"));
+                holder.status.setTextColor(Color.parseColor("#ffffff"));
+                break;
         }
+
         holder.starting_time.setText(activityListItems.getStarting_time());
 
         holder.button.setOnClickListener(new View.OnClickListener() {

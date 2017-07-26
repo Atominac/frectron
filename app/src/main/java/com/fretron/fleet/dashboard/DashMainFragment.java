@@ -1,22 +1,27 @@
 package com.fretron.fleet.dashboard;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,16 +44,18 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.fretron.fleet.ActivityListAdapter;
 import com.fretron.fleet.ActivityListItems;
 import com.fretron.fleet.Orientation;
+import com.fretron.fleet.OwnIconRendered;
 import com.fretron.fleet.R;
 import com.fretron.fleet.VolleyMain;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
+
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -76,6 +83,17 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
     TextView textView;
     Calendar calendar;
     Double speedDouble = 0.0;
+    ClusterManager<MyItem> mClusterManager ;
+    private VehicleListLoadingTask vehicleListLoadingTask = null;
+    private Marker mCurrentSelectedMarker;
+    String startPosition = "";
+    ActivityListItems activityItems;
+    String location = "NA";
+    RecyclerView recyclerView ;
+    LinearLayoutManager linearLayoutManager ;
+    MenuItem menuItem ;
+    int recyclerIndex ;
+    List<Address> start_position_string = null;
 
     public DashMainFragment() {
         // Required empty public constructor
@@ -118,9 +136,8 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
         deletePreviousData();
         createDatabase();
-
-        LayoutInflater inflater2 = getActivity().getLayoutInflater();
-        View myView = inflater2.inflate(R.layout.activity_content_list, container, false);
+        linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+//        linearLayoutManager.setStackFromEnd(true);
 
         textView = (TextView) mView.findViewById(R.id.textView_company_name);
 
@@ -141,8 +158,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 //            e.printStackTrace();
 //        }
 
-
-        makeJsonObjectRequest(customer_id);
+       makeJsonObjectRequest(customer_id);
 
 //        if (check.equals("true")) {
 //            new Thread(mRunnable = new Runnable() {
@@ -170,12 +186,13 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
 
         // prepareData();
-        RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
+        recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
         final Context mContext = getActivity().getApplicationContext();
         mAdapter = new ActivityListAdapter(activityList, getActivity());
         recyclerView.setLayoutManager(getLinearLayoutManager());
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+
 
         final Spinner spinner = (Spinner) mView.findViewById(R.id.select_status);
         arrayAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.vehicle_status, android.R.layout.simple_spinner_item);
@@ -347,6 +364,71 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         return view;
     }
 
+    private class VehicleListLoadingTask extends AsyncTask<String, Void, String> {
+        private  double[] latArray , longArray ;
+
+        VehicleListLoadingTask(double[] laArray , double[] lnArray) {
+            latArray = laArray ;
+            longArray = lnArray ;
+            //mAuthTask = UserLoginTask.this;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+           // ContentValues values = new ContentValues();
+
+            if (!isCancelled()) {
+                try {
+
+                    Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
+
+                    for (recyclerIndex = 0; recyclerIndex < latArray.length - 1; recyclerIndex++) {
+                        start_position_string = gcd.getFromLocation(latArray[recyclerIndex], longArray[recyclerIndex], 1);
+                        startPosition = "Unknown Location";
+                        if (start_position_string.size() != 0) {
+                            String city = start_position_string.get(0).getLocality();
+                            String state = start_position_string.get(0).getAdminArea();
+                            startPosition  = start_position_string.get(0).getAddressLine(0) + "\n" +
+                                    city + "\n" + state;
+                        }
+
+//                        values.put("location", startPosition);
+//                        sqLiteDatabase.update("vehicle_list", values, "location =" + recyclerIndex , null);
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    activityList.get(recyclerIndex).setLocation(startPosition);
+                                    mAdapter.notifyDataSetChanged();
+                                }catch (Exception e){
+                                    Log.w("AsynkTask : " , e.getMessage());
+                                }
+                            }
+                        });
+
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showpProgress();
+        }
+
+        @Override
+        protected void onCancelled() {
+            vehicleListLoadingTask = null;
+        }
+    }
+
     private static String getJson(String strEncoded) throws UnsupportedEncodingException {
         byte[] decodedBytes = Base64.decode(strEncoded, Base64.URL_SAFE);
         return new String(decodedBytes, "UTF-8");
@@ -354,92 +436,216 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
     private void makeJsonObjectRequest(String customer_id) {
         showpProgress();
+        final String[] speed = {"0"};
+        final String[] netDateTime = {"NA"};
+        final String[] status = {"NA"};
+        final MyItem[] offsetItem = {null};
+        final int[] index = {0};
 
         //String urlJsonArray = "http://35.189.189.215:8094/dashboard?customerId="+customer_id;
         String urlJsonArray = "http://35.189.189.215:8094/dashboard";
-        JsonArrayRequest jsonObjReq = new JsonArrayRequest(urlJsonArray, new Response.Listener<org.json.JSONArray>() {
+        final JsonArrayRequest jsonObjReq = new JsonArrayRequest(urlJsonArray, new Response.Listener<org.json.JSONArray>() {
 
             @Override
             public void onResponse(org.json.JSONArray response) {
+                double[] latArray = new double[response.length()];
+                double[] longArray = new double[response.length()];
+
+                int arrayIndex = 0 ;
+
                 try {
-                    ActivityListItems activityItems;
-                    String location = "NA";
+
+                    mClusterManager = new ClusterManager<MyItem>(getActivity(), googleMap);
                     for (int i = 0; i <= response.length(); i++) {
                         org.json.JSONObject vehicleDetails = (org.json.JSONObject) response.get(i);
-                        String vehicle_Id = vehicleDetails.get("vehicleRegistrationNumber").toString();
+                        final String vehicle_Id = vehicleDetails.get("vehicleRegistrationNumber").toString();
                         String vtsDeviceId = vehicleDetails.get("vtsDeviceId").toString();
-                        String startingDate = vehicleDetails.get("startTime").toString();
 
-                        calendar = Calendar.getInstance();
-                        calendar.setTimeInMillis(Long.parseLong(startingDate));
+                        if (vehicleDetails.has("startTime")) {
 
-                        int yy = calendar.get(Calendar.YEAR);
-                        int mm = calendar.get(Calendar.MONTH);
-                        int dd = calendar.get(Calendar.DAY_OF_MONTH);
-                        int hh = calendar.get(Calendar.HOUR_OF_DAY);
-                        int mi = calendar.get(Calendar.MINUTE);
+                            String startingDate = vehicleDetails.get("startTime").toString();
+                            calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(Long.parseLong(startingDate));
 
-                        String netDateTime = String.valueOf(dd) + "/" +
-                                String.valueOf(mm) + "/" +
-                                String.valueOf(yy) + " " +
-                                String.valueOf(hh) + ":" +
-                                String.valueOf(mi);
+                            int yy = calendar.get(Calendar.YEAR);
+                            int mm = calendar.get(Calendar.MONTH);
+                            int dd = calendar.get(Calendar.DAY_OF_MONTH);
+                            int hh = calendar.get(Calendar.HOUR_OF_DAY);
+                            int mi = calendar.get(Calendar.MINUTE);
 
-
-                        Double lat = vehicleDetails.getDouble("latitude");
-                        Double lng = vehicleDetails.getDouble("longitude");
-                        Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-                        List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);
-
-                        if (start_position_string.size() != 0) {
-                            location = start_position_string.get(0).getAddressLine(0);
+                            netDateTime[0] = String.valueOf(dd) + "/" +
+                                    String.valueOf(mm) + "/" +
+                                    String.valueOf(yy) + " " +
+                                    String.valueOf(hh) + ":" +
+                                    String.valueOf(mi);
                         }
 
-                        // String current_location_latitude = vehicleDetails.get("vehicleLocationLatitude").toString();
-                        // String current_location_longitude = vehicleDetails.get("vehicleLocationLongitude").toString();
-                        // String starting_date = vehicleDetails.get("vehicleStartDate").toString();
-                        String speed = vehicleDetails.get("speed").toString();
-                        speedDouble = Math.round(Double.parseDouble(speed) * 100.0) / 100.0;
+                        if (vehicleDetails.has("latitude") &&
+                                vehicleDetails.has("longitude") &&
+                                vehicleDetails.has("state") &&
+                                vehicleDetails.has("speed")
+                                ) {
+                            final Double lat = vehicleDetails.getDouble("latitude");
+                            final Double lng = vehicleDetails.getDouble("longitude");
 
-                        int current_status = (int) vehicleDetails.get("state");
-                        String status = null;
+                            offsetItem[0] = new MyItem(lat, lng);
+                            mClusterManager.addItem(offsetItem[0]);
 
-                        switch (current_status) {
-                            case -1:
-                                status = "offline";
-                                Marker marker = googleMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(lat, lng))
-                                        .title(vehicle_Id)
-                                        .icon(BitmapDescriptorFactory
-                                                .fromResource(R.drawable.truck_icon)));
+                            int current_status = (int) vehicleDetails.get("state");
 
-                                break;
-                            case 0:
-                                status = "stopped";
-                                marker = googleMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(lat, lng))
-                                        .title(vehicle_Id)
-                                        .icon(BitmapDescriptorFactory
-                                                .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                                break;
-                            case 1:
-                                status = "moving";
-                                break;
-                            case 2:
-                                status = "overspeeding";
-                                break;
+                            switch (current_status) {
+                                case -1:
+                                    status[0] = "offline";
+//                                    Marker marker = googleMap.addMarker(new MarkerOptions()
+//                                            .position(new LatLng(lat, lng))
+//                                            .title(vehicle_Id)
+//                                            .icon(BitmapDescriptorFactory
+//                                                    .fromResource(R.drawable.truck_icon)));
+
+                                    break;
+                                case 0:
+                                    status[0] = "stopped";
+//                                    marker = googleMap.addMarker(new MarkerOptions()
+//                                            .position(new LatLng(lat, lng))
+//                                            .title(vehicle_Id)
+//                                            .icon(BitmapDescriptorFactory
+//                                                    .fromResource(R.drawable.truck_icon)));
+                                    break;
+                                case 1:
+                                    status[0] = "moving";
+//                                    marker = googleMap.addMarker(new MarkerOptions()
+//                                            .position(new LatLng(lat, lng))
+//                                            .title(vehicle_Id)
+//                                            .icon(BitmapDescriptorFactory
+//                                                    .fromResource(R.drawable.truck_icon)));
+                                    break;
+                                case 2:
+                                    status[0] = "overspeeding";
+//                                    marker = googleMap.addMarker(new MarkerOptions()
+//                                            .position(new LatLng(lat, lng))
+//                                            .title(vehicle_Id)
+//                                            .icon(BitmapDescriptorFactory
+//                                                    .fromResource(R.drawable.truck_icon)));
+                                    break;
+                                default:
+                                    status[0] = "offline";
+                            }
+
+                            speed[0] = vehicleDetails.get("speed").toString();
+                            speedDouble = Math.round(Double.parseDouble(speed[0]) * 100.0) / 100.0;
+
+                            activityItems = new ActivityListItems(vehicle_Id, String.valueOf(speedDouble) + " m/s", netDateTime[0], "Loading location" , status[0], "", vtsDeviceId);
+                            activityList.add(activityItems);
+
+                            insertIntoDB2(vehicle_Id, vtsDeviceId, "Loading", netDateTime[0] , status[0] ,
+                                            String.valueOf(speedDouble) + " m/s" , String.valueOf(lat) ,
+                                            String.valueOf(lng) );
+
+                            latArray[arrayIndex] = lat ;
+                            longArray[arrayIndex]= lng ;
+
+                            arrayIndex++;
+
+                        } else {
+                            speedDouble = 0.0 ;
+                            insertIntoDB2(vehicle_Id, vtsDeviceId, "N-A-", "N-A-", "offline", "N-A-", "", "");
+                            activityItems = new ActivityListItems(vehicle_Id, "N-A-", "N-A-", "N-A-", "offline", "", vtsDeviceId);
+                            activityList.add(activityItems);
+
                         }
 
-                        activityItems = new ActivityListItems(vehicle_Id, String.valueOf(speedDouble) + " m/s", netDateTime, location, status, "", vtsDeviceId);
-                        activityList.add(activityItems);
-                        insertIntoDB2(vehicle_Id, vtsDeviceId, location, netDateTime, status, String.valueOf(speedDouble) + " m/s");
-
+                        index[0]++;
                     }
 
-                } catch (JSONException | IOException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
+                vehicleListLoadingTask = new VehicleListLoadingTask(latArray,longArray);
+                vehicleListLoadingTask.execute((String) null);
+
+                mAdapter = new ActivityListAdapter(activityList, getActivity());
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setAdapter(mAdapter);
+                googleMap.setOnCameraChangeListener(mClusterManager);
+                googleMap.setOnMarkerClickListener(mClusterManager);
+                googleMap.setInfoWindowAdapter(new MyCustomAdapterForItems());
+                new OwnIconRendered(getActivity(),googleMap,mClusterManager);
+//                mClusterManager.getMarkerManager().
+//                mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<MyItem>() {
+//                    @Override
+//                    public boolean onClusterItemClick(MyItem myItem) {
+//
+//                        Cursor markerCursor = sqLiteDatabase.rawQuery(query, null);
+//                        markerCursor.moveToFirst();
+//                        if (markerCursor.moveToFirst()) {
+//                            do {
+//                                String vehicleRegNo = markerCursor.getString(0);
+//                                String vtsDeviceId = markerCursor.getString(1);
+//                                String location = markerCursor.getString(2);
+//                                String startTime = markerCursor.getString(3);
+//                                String status = markerCursor.getString(4);
+//                                String speed = markerCursor.getString(5);
+//                                String lat = markerCursor.getString(6);
+//                                String lng = markerCursor.getString(7);
+//
+//                                if (lat.equals(String.valueOf(myItem.getPosition().latitude))&&
+//                                        lng.equals(String.valueOf(myItem.getPosition().longitude))){
+//
+//
+//                                    LayoutInflater lil = LayoutInflater.from(getActivity());
+//                                    View promptsView = lil.inflate(R.layout.onmarker_layout, null);
+//
+//                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//                                    alertDialogBuilder.setView(promptsView);
+//                                    alertDialogBuilder.setTitle(vehicleRegNo);
+//
+//                                    TextView vehicleName = (TextView) promptsView
+//                                            .findViewById(R.id.onmarker_truck_name);
+//                                    vehicleName.setText(vtsDeviceId);
+//
+//                                    TextView vehicleLocation = (TextView) promptsView
+//                                            .findViewById(R.id.onmarker_truck_location);
+//                                    vehicleLocation.setText(location);
+//
+//                                    TextView vehicleDate = (TextView) promptsView
+//                                            .findViewById(R.id.onmarker_truck_start_date);
+//                                    vehicleDate.setText(startTime);
+//
+//                                    TextView vehicleStatus = (TextView) promptsView
+//                                            .findViewById(R.id.onmarker_truck_status);
+//                                    vehicleStatus.setText(status);
+//
+//                                    TextView vehicleSpeed = (TextView) promptsView
+//                                            .findViewById(R.id.onmarker_current_speed);
+//                                    vehicleSpeed.setText(speed);
+//
+//
+//                                    alertDialogBuilder
+//                                            .setCancelable(false)
+//                                            .setPositiveButton("close",
+//                                                    new DialogInterface.OnClickListener() {
+//                                                        public void onClick(DialogInterface dialog, int id) {
+//                                                            dialog.cancel();
+//                                                        }
+//                                                    }
+//                                            );
+//
+//                                    AlertDialog alertDialog = alertDialogBuilder.create();
+//                                    alertDialog.show();
+//
+//                                }
+//
+//                            }
+//                            while (markerCursor.moveToNext());
+//                        }
+//                        markerCursor.close();
+//
+//                        return true ;
+//                    }
+//                });
+//                mClusterManager.cluster();
                 hidepProgress();
             }
 
@@ -521,6 +727,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
     private LinearLayoutManager getLinearLayoutManager() {
         if (mOrientation == Orientation.HORIZONTAL) {
+
             return new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         } else {
             return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
@@ -533,7 +740,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         this.menu = menu;
         inflater.inflate(R.menu.report_frag_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
-        MenuItem menuItem = menu.findItem(R.id.action_search);
+        menuItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
         searchView.setOnQueryTextListener(this);
 
@@ -578,7 +785,8 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
     protected void createDatabase() {
         sqLiteDatabase = getActivity().openOrCreateDatabase("vehicle_details", Context.MODE_PRIVATE, null);
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS vehicle_list(vehicleRegistrationNo VARCHAR," +
-                " vtsId VARCHAR , location VARCHAR , startTime VARCHAR , status VARCHAR , speed VARCHAR);");
+                " vtsId VARCHAR , location VARCHAR , startTime VARCHAR ," +
+                " status VARCHAR , speed VARCHAR , latitude VARCHAR , longitude VARCHAR);");
     }
 
     protected void deletePreviousData() {
@@ -586,12 +794,77 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
     }
 
     protected void insertIntoDB2(String vehicleRegistrationNo, String vtsDeviceId
-            , String location, String startTime, String status, String speed) {
+            , String location, String startTime, String status, String speed , String latitude , String longitude) {
         String query = "INSERT INTO vehicle_list (vehicleRegistrationNo,vtsId,location" +
-                ",startTime,status,speed) VALUES('" + vehicleRegistrationNo + "', '" + vtsDeviceId + "'," +
-                "'" + location + "','" + startTime + "','" + status + "','" + speed + "');";
+                ",startTime,status,speed,latitude,longitude) VALUES('" + vehicleRegistrationNo + "', '" + vtsDeviceId + "'," +
+                "'" + location + "','" + startTime + "','" + status + "','" + speed + "' ,'" + latitude + "' ,'" + longitude + "');";
         sqLiteDatabase.execSQL(query);
 
     }
 
+    private class MyCustomAdapterForItems implements GoogleMap.InfoWindowAdapter {
+
+        private final View myContentsView;
+
+        MyCustomAdapterForItems() {
+            myContentsView = getActivity().getLayoutInflater().inflate(
+                    R.layout.onmarker_layout, null);
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            final String query = "SELECT * FROM vehicle_list";
+            Cursor markerCursor = sqLiteDatabase.rawQuery(query, null);
+            markerCursor.moveToFirst();
+            if (markerCursor.moveToFirst()) {
+                do {
+                    String vehicleRegNo = markerCursor.getString(0);
+                    String vtsDeviceId = markerCursor.getString(1);
+                    String location = markerCursor.getString(2);
+                    String startTime = markerCursor.getString(3);
+                    String status = markerCursor.getString(4);
+                    String speed = markerCursor.getString(5);
+                    String lat = markerCursor.getString(6);
+                    String lng = markerCursor.getString(7);
+
+                    if (lat.equals(String.valueOf(marker.getPosition().latitude))&&
+                            lng.equals(String.valueOf(marker.getPosition().longitude))){
+
+                        TextView vehicleName = (TextView) myContentsView
+                                .findViewById(R.id.onmarker_truck_name);
+                        vehicleName.setText(vehicleRegNo);
+
+                        TextView vehicleLocation = (TextView) myContentsView
+                                .findViewById(R.id.onmarker_truck_location);
+                        vehicleLocation.setText(location);
+
+                        TextView vehicleDate = (TextView) myContentsView
+                                .findViewById(R.id.onmarker_truck_start_date);
+                        vehicleDate.setText(startTime);
+
+                        TextView vehicleStatus = (TextView) myContentsView
+                                .findViewById(R.id.onmarker_truck_status);
+                        vehicleStatus.setText(status);
+
+                        TextView vehicleSpeed = (TextView) myContentsView
+                                .findViewById(R.id.onmarker_current_speed);
+                        vehicleSpeed.setText(speed);
+
+
+                    }
+
+                }
+                while (markerCursor.moveToNext());
+            }
+            markerCursor.close();
+
+            return myContentsView;
+        }
+    }
 }

@@ -26,21 +26,17 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyC90V_vMqw3Wo2dCTxkbpNJGEAKn51LWn0" />
 
-
         <activity
             android:name=".SplashScreen"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="Fretron"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".login.Phone_no"
             android:label="Fretron">
@@ -69,6 +65,7 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".OnMarkerLayout"></activity>
     </application>
 
 </manifest>

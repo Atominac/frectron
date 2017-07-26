@@ -26,7 +26,7 @@ public class TimeLineModel implements Parcelable {
 
 
 
-    public void semMessage(String message) {
+    public void setMessage(String message) {
         this.mMessage = message;
 
     }

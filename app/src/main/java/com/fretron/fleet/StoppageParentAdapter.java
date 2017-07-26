@@ -14,13 +14,15 @@ public class StoppageParentAdapter extends RecyclerView.Adapter<StoppageParentAd
     private List<StoppageParentListDetails> activityList;
     Context context;
 
-    public void setActivityList(List<StoppageParentListDetails> activityList) {
+    public void setActivityList(List<StoppageParentListDetails> activityList , Context context  ) {
         this.activityList = activityList;
+        this.context = context ;
         notifyDataSetChanged();
     }
 
-    public StoppageParentAdapter(List<StoppageParentListDetails> activityList) {
+    public StoppageParentAdapter(List<StoppageParentListDetails> activityList , Context context ) {
         this.activityList = activityList;
+        this.context = context ;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -32,7 +34,7 @@ public class StoppageParentAdapter extends RecyclerView.Adapter<StoppageParentAd
             title = (TextView) view.findViewById(R.id.textView_vehicle_name);
             time = (TextView) view.findViewById(R.id.textView_vehicle_time);
             recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView_stoppage_sub_list);
-            StoppageChildAdapter nAdapter = new StoppageChildAdapter();
+            StoppageChildAdapter nAdapter = new StoppageChildAdapter(context);
             recyclerView.setAdapter(nAdapter);
             LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             recyclerView.setLayoutManager(layoutManager);

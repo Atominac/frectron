@@ -72,7 +72,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
     private RecyclerView horizontalRecyclerView ;
     int position = 0, positionn = 0;
     ArrayList<String> selected_vehicles = new ArrayList<>();
-    Cursor c , c2 ;
+    Cursor c , c2 , vehicleNamefindCursor ;
     ArrayList<String> list = new ArrayList<String>();
     List<StoppageParentListDetails> stoppageParentItemList = new ArrayList<>();
     String check;
@@ -147,10 +147,10 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
         ((DashBoard) getActivity())
                 .setActionBarTitle("Report -> Stoppage");
 
-        Button button = (Button) mView.findViewById(R.id.stoppage_start_date_button);
+        final Button button = (Button) mView.findViewById(R.id.stoppage_start_date_button);
         button.setOnClickListener(this);
 
-        Button button2 = (Button) mView.findViewById(R.id.stoppage_end_date_button);
+        final Button button2 = (Button) mView.findViewById(R.id.stoppage_end_date_button);
         button2.setOnClickListener(this);
 
         Context mContext = getActivity().getApplicationContext();
@@ -164,7 +164,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
         textViewTotalRecords = (TextView)mView.findViewById(R.id.running_report_total_records);
         textViewTotalTime = (TextView)mView.findViewById(R.id.running_report_total_time);
 
-        mAdapter = new StoppageParentAdapter(stoppageParentItemList);
+        mAdapter = new StoppageParentAdapter(stoppageParentItemList,getActivity());
         recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView_stoppage_list);
         recyclerView.setLayoutManager(getLinearLayoutManager());
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -195,6 +195,9 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
         mButtonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (!button.getText().equals("Start Date")&& !button2.getText().equals("End Date") )
+                {
 
                 final Dialog dialog = new Dialog(getActivity());
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -262,7 +265,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
 
                             if (stoppageParentItemList != null){
                                 stoppageParentItemList.clear();
-                                mAdapter = new StoppageParentAdapter(stoppageParentItemList);
+                                mAdapter = new StoppageParentAdapter(stoppageParentItemList,getActivity());
                                 mAdapter.notifyDataSetChanged();
                                 total_records = 0 ;
                             }
@@ -273,9 +276,13 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
                         }
                     }
                 });
-            }
-        });
 
+            }
+                else
+                    Toast.makeText(getActivity(),"Please select both dates" , Toast.LENGTH_SHORT).show();
+
+        }
+        });
 
         return view;
     }
@@ -299,7 +306,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
             @Override
             public void onResponse(JSONArray jsonArray) {
 
-                String location = "NA";
+                String location = "NA" , stoppageTimeString = "" , totalStoppageTimeString = "" , netStoppageTimeString = "" ;
                 for (int i = 0; i <= jsonArray.length(); i++) {
                     try {
                         parentTime = 0.0 ;
@@ -310,7 +317,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
 
                         JSONArray  start_position_object = (JSONArray) vehicleDetails.get("value");
                         ArrayList<StoppageChildListDetails> childs = new ArrayList<>();
-                        for (int j=0 ; j<=2;j++){
+                        for (int j=0 ; j< start_position_object.length() ;j++){
 
                             JSONObject inner_json = (JSONObject) start_position_object.get(j);
                             String over_speed_start_time = inner_json.getString("startTime");
@@ -335,23 +342,105 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
                             Double lat = position_object.getDouble("lat");
                             Double lng = position_object.getDouble("long");
 
-                            Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-                            List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);
+                            String stoppageDuration = inner_json.getString("duration");
 
-                            if (start_position_string.size()!=0){
-                                location = start_position_string.get(0).getAddressLine(0);
+                            long x = Long.parseLong(stoppageDuration);
+                            long milliseconds ,seconds , minutes , hours , days ;
+
+
+                            milliseconds = x % 1000;
+                            x = x / 1000 ;
+                            seconds = x % 60 ;
+                            x /= 60 ;
+                            minutes = x % 60 ;
+                            x /= 60 ;
+                            hours = x % 24 ;
+                            x /= 24 ;
+                            days = x ;
+
+                            if (days>0){
+                                stoppageTimeString = String.valueOf(days) + " D\n" + String.valueOf(hours) + " Hrs";
                             }
 
-                            String stoppageDuration = inner_json.getString("duration");
+                            else if(days == 0 && hours>0){
+                                stoppageTimeString = String.valueOf(hours) + " Hrs\n"+
+                                        String.valueOf(minutes) + " min" ;
+                            }
+
+                            else if (days==0 && hours==0 && minutes>0){
+                                stoppageTimeString = String.valueOf(minutes) + " min\n" + String.valueOf(seconds) + " sec";
+                            }
+
+                            else if (days==0 && hours==0 && minutes==0 && seconds>0){
+                                stoppageTimeString = String.valueOf(seconds) + " sec\n" + String.valueOf(x) + " msec";
+
+                            }
+
+                            else if (days==0 && hours==0 && minutes==0 && seconds==0){
+                                stoppageTimeString = String.valueOf(milliseconds) + " msec";
+
+                            }
+
                             parentTime = parentTime + Double.parseDouble(stoppageDuration);
 
+                            long y = Math.round(parentTime);
+                            long totalmilliseconds , totalSeconds , totalMinutes , totalHours , totalDays ;
+
+                            totalmilliseconds = y % 1000 ;
+                            y = y / 1000 ;
+                            totalSeconds = y % 60 ;
+                            y /= 60 ;
+                            totalMinutes = y % 60 ;
+                            y /= 60 ;
+                            totalHours = y % 24 ;
+                            y /= 24 ;
+                            totalDays = y ;
+
+                            if (totalDays>0){
+                                totalStoppageTimeString = String.valueOf(totalDays) + " D  " + String.valueOf(totalHours) + " Hrs ";
+                            }
+
+                            else if(totalDays == 0 && totalHours>0){
+                                totalStoppageTimeString = String.valueOf(totalHours) + " Hrs  "+
+                                        String.valueOf(totalMinutes) + " min ";
+                            }
+
+                            else if (totalDays==0 && totalHours==0 && totalMinutes>0){
+                                stoppageTimeString = String.valueOf(totalMinutes) + " min  " + String.valueOf(totalSeconds) + " sec ";
+                            }
+
+                            else if (totalDays==0 && totalHours==0 && totalMinutes==0 && totalSeconds>0){
+                                totalStoppageTimeString = String.valueOf(totalSeconds) + " sec " + String.valueOf(totalmilliseconds) + " msec ";
+
+                            }
+
+                            else if (totalDays==0 && totalHours==0 && totalMinutes==0 && totalSeconds==0){
+                                totalStoppageTimeString = String.valueOf(totalmilliseconds) + " msec ";
+
+                            }
+
                           //  String over_speed_speed = inner_json.getString("averageSpeed");
-                            StoppageChildListDetails activityItems = new StoppageChildListDetails(netDateTime,stoppageDuration + "\nmsec",location);
+                            StoppageChildListDetails activityItems = new StoppageChildListDetails(netDateTime,
+                                    stoppageTimeString ,"Loading",lat,lng);
                             childs.add(activityItems);
+
                         }
 
-                        p2.setTitle(imei_no);
-                        p2.setTime(String.valueOf(parentTime)+ " msec");
+                        String findVehicleNameQuery = "SELECT vehicleRegistrationNo FROM vehicle_list where vtsId =" + imei_no;
+                        vehicleNamefindCursor = sqLiteDatabase.rawQuery(findVehicleNameQuery, null);
+                        vehicleNamefindCursor.moveToFirst();
+
+                        String vehicleRegNo = " N-A- " ;
+                        if (vehicleNamefindCursor.moveToFirst()) {
+                            do {
+                                vehicleRegNo = vehicleNamefindCursor.getString(0);
+
+                            } while (vehicleNamefindCursor.moveToNext());
+                        }
+                        vehicleNamefindCursor.close();
+
+                        p2.setTitle(vehicleRegNo);
+                        p2.setTime(totalStoppageTimeString);
                         p2.childListDetailses = childs;
                         stoppageParentItemList.add(p2);
                         total_records ++;
@@ -359,18 +448,55 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
 
                     }
 
-                    catch (JSONException | IOException e) {
+                    catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
+                long y = Math.round(netTime);
+                long netmilliseconds , netSeconds , netMinutes , netHours , netDays ;
+
+                netmilliseconds = y % 1000;
+                y = y / 1000 ;
+                netSeconds = y % 60 ;
+                y /= 60 ;
+                netMinutes = y % 60 ;
+                y /= 60 ;
+                netHours = y % 24 ;
+                y /= 24 ;
+                netDays = y ;
+
+                if (netDays>0){
+                    netStoppageTimeString = String.valueOf(netDays) + " D  " + String.valueOf(netHours) + " Hrs ";
+                }
+
+                else if(netDays == 0 && netHours>0){
+                    netStoppageTimeString = String.valueOf(netHours) + " Hrs  "+
+                            String.valueOf(netMinutes) + " min ";
+                }
+
+                else if (netDays==0 && netHours==0 && netMinutes>0){
+                    netStoppageTimeString = String.valueOf(netMinutes) + " min  " + String.valueOf(netSeconds) + " sec ";
+                }
+
+                else if (netDays==0 && netHours==0 && netMinutes==0 && netSeconds>0){
+                    netStoppageTimeString = String.valueOf(netSeconds) + " sec " + String.valueOf(netmilliseconds) + " msec ";
+
+                }
+
+                else if (netDays==0 && netHours==0 && netMinutes==0 && netSeconds==0){
+                    netStoppageTimeString = String.valueOf(netmilliseconds) + " msec ";
+
+                }
+
 
                 recordValue = String.valueOf(total_records);
                 netRecord = recordValue + record ;
                 textViewTotalRecords.setText(netRecord);
 
-                textViewTotalTime.setText(String.valueOf(netTime)+" millisec");
-                mAdapter = new StoppageParentAdapter(stoppageParentItemList);
-                mAdapter.setActivityList(stoppageParentItemList);
+                textViewTotalTime.setText(netStoppageTimeString);
+                mAdapter = new StoppageParentAdapter(stoppageParentItemList,getActivity());
+                mAdapter.setActivityList(stoppageParentItemList,getActivity());
                 recyclerView.setLayoutManager(getLinearLayoutManager());
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(mAdapter);
@@ -399,7 +525,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
             String min = String.valueOf(mMinute);
             button2.setText((d + "/" + m + "/" + y + "  " + h + ":" + min));
             Calendar calendar = Calendar.getInstance();
-            calendar.set(mSelectedDate.getStartDate().get(Calendar.YEAR), mSelectedDate.getStartDate().get(Calendar.MONTH)+1, mSelectedDate.getStartDate().get(Calendar.DAY_OF_MONTH),
+            calendar.set(mSelectedDate.getStartDate().get(Calendar.YEAR), mSelectedDate.getStartDate().get(Calendar.MONTH), mSelectedDate.getStartDate().get(Calendar.DAY_OF_MONTH),
                     mHour,mMinute, 0);
             long startTime = calendar.getTimeInMillis();
             end_date_epo = Long.toString(startTime);
@@ -416,7 +542,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
             String min = String.valueOf(mMinute2);
             button2.setText((d + "/" + m + "/" + y + "  " + h + ":" + min));
             Calendar calendar = Calendar.getInstance();
-            calendar.set(mSelectedDate2.getStartDate().get(Calendar.YEAR), mSelectedDate2.getStartDate().get(Calendar.MONTH)+1, mSelectedDate2.getStartDate().get(Calendar.DAY_OF_MONTH),
+            calendar.set(mSelectedDate2.getStartDate().get(Calendar.YEAR), mSelectedDate2.getStartDate().get(Calendar.MONTH), mSelectedDate2.getStartDate().get(Calendar.DAY_OF_MONTH),
                     mHour2,mMinute2, 0);
             long startTime = calendar.getTimeInMillis();
             start_date_epo = Long.toString(startTime);

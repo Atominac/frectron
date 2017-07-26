@@ -66,7 +66,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
     ProgressBar progressBar;
     SQLiteDatabase sqLiteDatabase;
     private RecyclerView.Adapter horizontalListAdapter;
-    Cursor c,c2;
+    Cursor c , c2 , vehicleNamefindCursor ;
     ArrayList<String> list = new ArrayList<String>();
     private RecyclerView parentRecycler , childRecycler ,horizontalRecyclerView ;
     ArrayList<String> selected_vehicles = new ArrayList<>();
@@ -142,7 +142,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                              Bundle savedInstanceState) {
 
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_report_overspeed, container, false);
+        final View view = inflater.inflate(R.layout.fragment_report_overspeed, container, false);
         this.mView = view;
 
         ((DashBoard) getActivity())
@@ -160,10 +160,10 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
         textViewTotalTime = (TextView)mView.findViewById(R.id.running_report_total_time);
         recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView_overspeed_list);
 
-        Button button = (Button) mView.findViewById(R.id.overspeeding_start_date_button);
+        final Button button = (Button) mView.findViewById(R.id.overspeeding_start_date_button);
         button.setOnClickListener(this);
 
-        Button button2 = (Button) mView.findViewById(R.id.overspeeding_end_date_button);
+        final Button button2 = (Button) mView.findViewById(R.id.overspeeding_end_date_button);
         button2.setOnClickListener(this);
 
         final ArrayList<String> vehicleRegistrationList = new ArrayList<>();
@@ -191,6 +191,9 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
         mButtonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (!button.getText().equals("Start Date")&& !button2.getText().equals("End Date") )
+                {
 
                 final Dialog dialog = new Dialog(getActivity());
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -257,7 +260,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
 
                             if (parentItemList != null){
                                 parentItemList.clear();
-                                mAdapter = new OverspeedParentAdapter(parentItemList);
+                                mAdapter = new OverspeedParentAdapter(parentItemList  , getActivity());
                                 mAdapter.notifyDataSetChanged();
                                 total_records = 0 ;
                             }
@@ -267,6 +270,12 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                         }
                     }
                 });
+
+                }
+
+                else
+                    Toast.makeText(getActivity(),"Please select both dates" , Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -315,7 +324,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
             String min = String.valueOf(mMinute);
             button2.setText((d + "/" + m + "/" + y + "  " + h + ":" + min));
             Calendar calendar = Calendar.getInstance();
-            calendar.set(mSelectedDate.getStartDate().get(Calendar.YEAR), mSelectedDate.getStartDate().get(Calendar.MONTH)+1, mSelectedDate.getStartDate().get(Calendar.DAY_OF_MONTH),
+            calendar.set(mSelectedDate.getStartDate().get(Calendar.YEAR), mSelectedDate.getStartDate().get(Calendar.MONTH), mSelectedDate.getStartDate().get(Calendar.DAY_OF_MONTH),
                     mHour,mMinute, 0);
             long startTime = calendar.getTimeInMillis();
             end_date_epo = Long.toString(startTime);
@@ -333,7 +342,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
             String min = String.valueOf(mMinute2);
             button2.setText((d + "/" + m + "/" + y + "  " + h + ":" + min));
             Calendar calendar = Calendar.getInstance();
-            calendar.set(mSelectedDate2.getStartDate().get(Calendar.YEAR), mSelectedDate2.getStartDate().get(Calendar.MONTH)+1, mSelectedDate2.getStartDate().get(Calendar.DAY_OF_MONTH),
+            calendar.set(mSelectedDate2.getStartDate().get(Calendar.YEAR), mSelectedDate2.getStartDate().get(Calendar.MONTH), mSelectedDate2.getStartDate().get(Calendar.DAY_OF_MONTH),
                     mHour2,mMinute2, 0);
             long startTime = calendar.getTimeInMillis();
             start_date_epo = Long.toString(startTime);
@@ -361,7 +370,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
             public void onResponse(JSONArray jsonArray) {
 
                 String location = "NA";
-                String over_speed_speed = "NA";
+                String over_speed_speed = "NA" , overspeedTimeString = "" ;
                 for (int i = 0; i <= jsonArray.length(); i++) {
                     try {
                         parentTime = 0.0 ;
@@ -373,7 +382,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
 
                         JSONArray  start_position_object = (JSONArray) vehicleDetails.get("value");
                         ArrayList<OverspeedingChildListDetails> childs = new ArrayList<>();
-                        for (int j=0 ; j<=4;j++){
+                        for (int j=0 ; j<=start_position_object.length()-1;j++){
 
                             averageSpeed =0.0;
 
@@ -400,14 +409,46 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                             Double lat = position_object.getDouble("lat");
                             Double lng = position_object.getDouble("long");
 
-                            Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-                            List<Address> start_position_string = gcd.getFromLocation(lat, lng, 1);
+                            String over_speed_duration = inner_json.getString("duration");
 
-                            if (start_position_string.size()!=0){
-                                location = start_position_string.get(0).getAddressLine(0);
+                            long x = Long.parseLong(over_speed_duration);
+                            long milliseconds ,seconds , minutes , hours , days ;
+
+
+                            milliseconds = x % 1000;
+                            x = x / 1000 ;
+                            seconds = x % 60 ;
+                            x /= 60 ;
+                            minutes = x % 60 ;
+                            x /= 60 ;
+                            hours = x % 24 ;
+                            x /= 24 ;
+                            days = x ;
+
+                            if (days>0){
+                                overspeedTimeString = String.valueOf(days) + " D\n" + String.valueOf(hours) + " Hrs";
                             }
 
-                            String over_speed_duration = inner_json.getString("duration");
+                            else if(days == 0 && hours>0){
+                                overspeedTimeString = String.valueOf(hours) + " Hrs\n"+
+                                        String.valueOf(minutes) + " min" ;
+                            }
+
+                            else if (days==0 && hours==0 && minutes>0){
+                                overspeedTimeString = String.valueOf(minutes) + " min\n" + String.valueOf(seconds) + " sec";
+                            }
+
+                            else if (days==0 && hours==0 && minutes==0 && seconds>0){
+                                overspeedTimeString = String.valueOf(seconds) + " sec\n" + String.valueOf(x) + " msec";
+
+                            }
+
+                            else if (days==0 && hours==0 && minutes==0 && seconds==0){
+                                overspeedTimeString = String.valueOf(milliseconds) + " msec\n";
+
+                            }
+
+
                             parentTime = parentTime + Double.parseDouble(over_speed_duration);
 
                             over_speed_speed = inner_json.getString("averageSpeed");
@@ -423,14 +464,27 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                                 totalSubDistance = 0.0;
                             }
 
-                            OverspeedingChildListDetails activityItems = new OverspeedingChildListDetails(netDateTime,over_speed_duration + " msec",String.valueOf(averageSpeed)+ "\nKmph",location);
+                            OverspeedingChildListDetails activityItems = new OverspeedingChildListDetails(netDateTime, overspeedTimeString ,String.valueOf(averageSpeed)+ "\nKmph","Loading" ,lat,lng);
                             childs.add(activityItems);
                         }
 
                         total_distance = (total_distance + calculatedDistance)/1000;
 
+                        String findVehicleNameQuery = "SELECT vehicleRegistrationNo FROM vehicle_list where vtsId =" + imei_no;
+                        vehicleNamefindCursor = sqLiteDatabase.rawQuery(findVehicleNameQuery, null);
+                        vehicleNamefindCursor.moveToFirst();
+
+                        String vehicleRegNo = " N-A- " ;
+                        if (vehicleNamefindCursor.moveToFirst()) {
+                            do {
+                                vehicleRegNo = vehicleNamefindCursor.getString(0);
+
+                            } while (vehicleNamefindCursor.moveToNext());
+                        }
+                        vehicleNamefindCursor.close();
+
                         p.setSpeed(String.valueOf(parentTime)+ " msec");
-                        p.setTitle(imei_no);
+                        p.setTitle(vehicleRegNo);
                         p.setDistance(String.valueOf(Math.round(totalSubDistance * 100.0) / 100.0)+ " Kms");
                         p.childListDetailses = childs;
                         parentItemList.add(p);
@@ -438,7 +492,7 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
                         neTime = neTime + parentTime;
                     }
 
-                    catch (JSONException | IOException e) {
+                    catch (JSONException e) {
                         e.printStackTrace();
                     }
 
@@ -452,8 +506,8 @@ public class ReportOverspeedFragment extends Fragment implements View.OnClickLis
 
                 textViewTotalTime.setText(String.valueOf(neTime)+ " msec");
 
-                mAdapter = new OverspeedParentAdapter(parentItemList);
-                mAdapter.setActivityList(parentItemList);
+                mAdapter = new OverspeedParentAdapter(parentItemList , getActivity());
+                mAdapter.setActivityList(parentItemList , getActivity());
                 recyclerView.setLayoutManager(getLinearLayoutManager());
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(mAdapter);

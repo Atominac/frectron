@@ -1,13 +1,16 @@
 package com.fretron.fleet;
 
 public class StoppageChildListDetails {
-    private String title, speed, distance ;
+    private String title, speed , location ;
+    private Double latitude , longitude ;
 
 
-    public StoppageChildListDetails(String title, String speed, String distance ) {
+    public StoppageChildListDetails(String title, String speed, String loca , Double lat , Double lng ) {
         this.title = title;
         this.speed = speed;
-        this.distance = distance;
+        this.location = loca ;
+        this.latitude = lat ;
+        this.longitude = lng ;
     }
 
     public String getTitle() {
@@ -26,12 +29,28 @@ public class StoppageChildListDetails {
         this.speed = speed;
     }
 
-    public String getDistance() {
-        return distance;
+    public String getLocation() {
+        return location;
     }
 
-    public void setDistance(String distance) {
-        this.distance = distance;
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
 }

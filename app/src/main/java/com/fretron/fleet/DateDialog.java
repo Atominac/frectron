@@ -1,6 +1,5 @@
 package com.fretron.fleet;
 
-
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.icu.text.TimeZoneFormat;
@@ -38,6 +37,8 @@ public class DateDialog extends DialogFragment implements DatePickerDialog.OnDat
     }
 
     public void populateSetDate(int year, int month, int day) {
+        if(viewTimelineLocation.myGeocoderTask != null && !viewTimelineLocation.myGeocoderTask.isCancelled())
+            viewTimelineLocation.myGeocoderTask.cancel(true);
         viewTimelineLocation.mDataList.clear();
         viewTimelineLocation.mTimeLineAdapter.notifyDataSetChanged();
         Button button = (Button)getActivity().findViewById(R.id.location_date_selector_button);

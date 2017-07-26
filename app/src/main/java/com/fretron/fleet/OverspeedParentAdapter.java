@@ -16,13 +16,15 @@ public class OverspeedParentAdapter extends RecyclerView.Adapter<OverspeedParent
     Context context;
 
 
-    public void setActivityList(List<OverspeedParentListDetails> activityList) {
+    public void setActivityList(List<OverspeedParentListDetails> activityList , Context context) {
         this.activityList = activityList;
+        this.context = context ;
         notifyDataSetChanged();
     }
 
-    public OverspeedParentAdapter(List<OverspeedParentListDetails> activityList) {
+    public OverspeedParentAdapter(List<OverspeedParentListDetails> activityList ,  Context context) {
         this.activityList = activityList;
+        this.context = context ;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -35,7 +37,7 @@ public class OverspeedParentAdapter extends RecyclerView.Adapter<OverspeedParent
             speed = (TextView) view.findViewById(R.id.textView_vehicle_time);
             distance = (TextView) view.findViewById(R.id.textView_vehicle_distance);
             recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView_overspeed_sub_list);
-            OverspeedChildAdapter nAdapter = new OverspeedChildAdapter();
+            OverspeedChildAdapter nAdapter = new OverspeedChildAdapter(context);
             recyclerView.setAdapter(nAdapter);
             LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
             recyclerView.setLayoutManager(layoutManager);
