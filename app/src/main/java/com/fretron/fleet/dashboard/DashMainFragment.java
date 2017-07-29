@@ -11,6 +11,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -130,6 +132,9 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
         View view = inflater.inflate(R.layout.fragment_dash_main_fragment, container, false);
         this.mView = view;
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
 
         ((DashBoard) getActivity())
                 .setActionBarTitle("All Vehicles");

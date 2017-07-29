@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+       <CheckBox
+           android:layout_width="200dp"
+           android:layout_height="wrap_content"
+           android:text="Stopped"
+           android:textSize="18sp"
+           android:layout_marginTop="20dp"/>
+
+        <CheckBox
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Moving"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"/>
+
+        <CheckBox
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Overspeeding"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint=""
+            android:layout_weight="0.9"
+            android:layout_marginEnd="20dp"
+            android:textSize="18sp"
+            android:gravity="center_horizontal"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:layout_marginStart="20dp"
+            android:id="@+id/timeline_filter_spinner">
+
+        </Spinner>
+
+    </LinearLayout>
+
+</LinearLayout>

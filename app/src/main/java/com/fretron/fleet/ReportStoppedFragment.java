@@ -2,16 +2,19 @@ package com.fretron.fleet;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +72,7 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
     String mRecurrenceOption, mRecurrenceRule,mRecurrenceOption2, mRecurrenceRule2;
     ProgressBar progressBar;
     String start_date_epo , end_date_epo ;
+    ArrayAdapter<CharSequence> arrayAdapter;
     private RecyclerView.Adapter horizontalListAdapter;
     private RecyclerView horizontalRecyclerView ;
     int position = 0, positionn = 0;
@@ -86,7 +91,6 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
     RecyclerView recyclerView;
 
     public ReportStoppedFragment() {
-
     }
 
     SublimePickerFragment.Callback mFragmentCallback = new SublimePickerFragment.Callback() {
@@ -152,6 +156,56 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
 
         final Button button2 = (Button) mView.findViewById(R.id.stoppage_end_date_button);
         button2.setOnClickListener(this);
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                if (!button.getText().equals("Start Date")&& !button2.getText().equals("End Date")
+                        && !current_vehicle_in_list.isEmpty()) {
+
+                LayoutInflater lil = LayoutInflater.from(getActivity());
+                View promptsView = lil.inflate(R.layout.report_filter_duration, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                alertDialogBuilder.setView(promptsView);
+
+                Spinner spinner = (Spinner) promptsView.findViewById(R.id.report_filter_spinner);
+                arrayAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.timeline_filter_status, android.R.layout.simple_spinner_item);
+                arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(arrayAdapter);
+
+                alertDialogBuilder.setTitle("Duration Filter") ;
+
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+                }
+
+                else
+                    Toast.makeText(getActivity(),"Please select both dates\nand add some vehicles" , Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        fab.setVisibility(View.VISIBLE);
 
         Context mContext = getActivity().getApplicationContext();
 
@@ -268,6 +322,8 @@ public class ReportStoppedFragment extends Fragment implements View.OnClickListe
                                 mAdapter = new StoppageParentAdapter(stoppageParentItemList,getActivity());
                                 mAdapter.notifyDataSetChanged();
                                 total_records = 0 ;
+                                netTime = 0.0 ;
+
                             }
 
                             // JSON CALL STARTS HERE

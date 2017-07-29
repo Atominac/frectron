@@ -8,6 +8,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -154,6 +155,9 @@ public class ReportRunningFragment extends Fragment implements View.OnClickListe
 
         ((DashBoard) getActivity())
                 .setActionBarTitle("Report -> Running");
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
 
         openDatabase();
 

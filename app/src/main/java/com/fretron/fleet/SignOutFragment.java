@@ -1,6 +1,7 @@
 package com.fretron.fleet;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -27,6 +28,9 @@ public class SignOutFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_sign_out, container, false);
         this.mView = view;
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
 
         ((DashBoard) getActivity())
                 .setActionBarTitle("Sign out");

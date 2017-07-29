@@ -40,6 +40,12 @@
         <item>Stopped Vehicles</item>
     </string-array>
 
+    <string-array name="timeline_filter_status">
+        <item>Select format</item>
+        <item>Minutes</item>
+        <item>Hours</item>
+    </string-array>
+
     <string name="title_activity_splash_screen">SplashScreen</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>

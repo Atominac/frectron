@@ -2,6 +2,7 @@ package com.fretron.fleet;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -12,12 +13,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,10 +31,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -99,6 +105,7 @@ public class ViewTimelineLocation extends Fragment  implements View.OnClickListe
     Polyline line ;
     LinearLayoutManager linearLayoutManager;
     AppBarLayout appBarLayout ;
+    ArrayAdapter<CharSequence> arrayAdapter;
     int recyclerIndex ;
     List<Address> start_position_string = null;
 
@@ -143,6 +150,50 @@ public class ViewTimelineLocation extends Fragment  implements View.OnClickListe
 
         ((DashBoard) getActivity())
                 .setActionBarTitle(vehicle_name);
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                LayoutInflater lil = LayoutInflater.from(getActivity());
+                View promptsView = lil.inflate(R.layout.timeline_filter_layout, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                alertDialogBuilder.setView(promptsView);
+
+
+                Spinner spinner = (Spinner) promptsView.findViewById(R.id.timeline_filter_spinner);
+                arrayAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.timeline_filter_status, android.R.layout.simple_spinner_item);
+                arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(arrayAdapter);
+
+
+                alertDialogBuilder.setTitle("My Filter") ;
+
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+
+            }
+        });
+        fab.setVisibility(View.VISIBLE);
 
         coordinatorLayout = (CoordinatorLayout) mView.findViewById(R.id.coordinate_layout_timeline);
         appBarLayout = (AppBarLayout)mView.findViewById(R.id.appBar);

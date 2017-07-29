@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -55,6 +56,9 @@ public class LocationFragment extends Fragment implements SearchView.OnQueryText
 
         View view = inflater.inflate(R.layout.fragment_location_fragment, container, false);
         this.mView = view;
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
 
         ((DashBoard) getActivity())
                 .setActionBarTitle("Location History");

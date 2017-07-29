@@ -14,11 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -27,7 +22,6 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
                     android:padding="2dp">
 
                     <TextView
@@ -38,8 +32,7 @@
                         android:text="TR1084"
                         android:layout_marginStart="5dp"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#ffffff"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/textView_vehicle_time"
@@ -49,8 +42,7 @@
                         android:text="Total : 32 min"
                         android:textSize="14sp"
                         android:layout_marginEnd="5dp"
-                        android:textStyle="normal"
-                        android:textColor="#ffffff"/>
+                        android:textStyle="normal" />
 
                     <TextView
                         android:id="@+id/textView_vehicle_distance"
@@ -61,15 +53,15 @@
                         android:text="6 Kms"
                         android:layout_marginEnd="5dp"
                         android:textSize="14sp"
-                        android:textStyle="normal"
-                        android:textColor="#ffffff"/>
+                        android:textStyle="normal" />
 
                 </RelativeLayout>
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="visible">
+                    android:visibility="visible"
+                    android:layout_marginTop="10dp">
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/recyclerView_overspeed_sub_list"
@@ -85,7 +77,6 @@
                 </HorizontalScrollView>
 
             </LinearLayout>
-        </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
