@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import com.fretron.fleet.LocationHistory.LocationFragment;
 import com.fretron.fleet.R;
@@ -163,12 +164,13 @@ public class DashBoard extends AppCompatActivity
                     case 5 :
                         session = new UserSessionManager(getApplicationContext());
                         session.logout();
-                        SignOutFragment signOutFragment = new SignOutFragment();
-                        FragmentTransaction signoutTransaction = getSupportFragmentManager().beginTransaction();
-                        signoutTransaction.replace(R.id.fragment_container,signOutFragment);
-                        signoutTransaction.commit();
-                        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                        drawer.closeDrawer(GravityCompat.START);
+                        Toast.makeText(DashBoard.this,"You are Logged out",Toast.LENGTH_LONG).show();
+//                        SignOutFragment signOutFragment = new SignOutFragment();
+//                        FragmentTransaction signoutTransaction = getSupportFragmentManager().beginTransaction();
+//                        signoutTransaction.replace(R.id.fragment_container,signOutFragment);
+//                        signoutTransaction.commit();
+//                        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//                        drawer.closeDrawer(GravityCompat.START);
                         return true;
 
                 }

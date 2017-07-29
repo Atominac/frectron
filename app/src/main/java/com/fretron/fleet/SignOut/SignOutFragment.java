@@ -14,9 +14,11 @@ import android.view.ViewGroup;
 import com.fretron.fleet.R;
 import com.fretron.fleet.dashboard.DashBoard;
 import com.fretron.fleet.dashboard.DashMainFragment;
+import com.fretron.fleet.login.UserSessionManager;
 
 public class SignOutFragment extends Fragment {
     protected View mView;
+    UserSessionManager session;
 
 
     public SignOutFragment() {
