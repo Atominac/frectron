@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.fretron.fleet.ViewTimelineLocation"
+    tools:context="com.fretron.fleet.Timeline.TimelineFragment"
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
@@ -16,7 +16,7 @@
         android:visibility="invisible"
         android:gravity="center_horizontal"
         android:id="@+id/coordinate_layout_timeline"
-        tools:context="com.fretron.fleet.ViewTimelineLocation">
+        tools:context="com.fretron.fleet.Timeline.TimelineFragment">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appBar"

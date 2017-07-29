@@ -16,7 +16,7 @@
         android:required="true" />
 
     <application
-        android:name=".VolleyMain"
+        android:name=".Essentials.VolleyMain"
         android:allowBackup="true"
         android:icon="@drawable/fretron_icon"
         android:label="@string/app_name"
@@ -27,7 +27,7 @@
             android:value="AIzaSyC90V_vMqw3Wo2dCTxkbpNJGEAKn51LWn0" />
 
         <activity
-            android:name=".SplashScreen"
+            android:name=".SplashScreen.SplashScreen"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="Fretron"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
@@ -58,14 +58,13 @@
         </activity>
 
         <receiver
-            android:name=".SmsReceiver"
+            android:name=".login.SmsReceiver"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".OnMarkerLayout"></activity>
     </application>
 
 </manifest>

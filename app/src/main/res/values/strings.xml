@@ -17,7 +17,7 @@
     <string name="report_running_fragment">Running vehicles</string>
     <string name="report_overspeed_fragment">Overspeeding vehicles</string>
     <string name="report_stopped_fragment">Stopped vehicles</string>
-    <string name="nav_header_1">Activities</string>
+    <string name="nav_header_1">Dashboard</string>
     <string name="nav_header_2">Statistics</string>
     <string name="nav_header_3">Location History</string>
     <string name="nav_header_4">Report</string>

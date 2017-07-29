@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context="com.fretron.fleet.SplashScreen">
+    tools:context="com.fretron.fleet.SplashScreen.SplashScreen">
 
     <LinearLayout
         android:id="@+id/linearLayout"

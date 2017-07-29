@@ -108,12 +108,11 @@
                     android:gravity="bottom|end"
                     android:layout_marginTop="10dp">
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/view_timeline_button"
-                        android:layout_width="40dp"
-                        android:layout_height="20dp"
-                        android:background="@drawable/custom_button2"
-                        android:text="View"
+                        android:background="@drawable/marker"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:textColor="#ffffff"
                         android:textSize="12sp" />
 

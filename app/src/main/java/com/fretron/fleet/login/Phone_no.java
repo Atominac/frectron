@@ -23,9 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.fretron.fleet.R;
-import com.fretron.fleet.SmsListener;
-import com.fretron.fleet.SmsReceiver;
-import com.fretron.fleet.VolleyMain;
+import com.fretron.fleet.Essentials.VolleyMain;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

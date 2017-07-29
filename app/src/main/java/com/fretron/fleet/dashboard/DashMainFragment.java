@@ -1,9 +1,6 @@
 package com.fretron.fleet.dashboard;
 
-import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,12 +9,10 @@ import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,12 +38,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.fretron.fleet.ActivityListAdapter;
-import com.fretron.fleet.ActivityListItems;
-import com.fretron.fleet.Orientation;
-import com.fretron.fleet.OwnIconRendered;
+import com.fretron.fleet.Timeline.Orientation;
 import com.fretron.fleet.R;
-import com.fretron.fleet.VolleyMain;
+import com.fretron.fleet.Essentials.VolleyMain;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -73,24 +65,21 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
     protected View mView;
     GoogleMap googleMap;
     private MapView mapView;
-    private List<ActivityListItems> activityList = new ArrayList<>();
-    private ActivityListAdapter mAdapter;
+    private List<DashboardRecyclerItems> activityList = new ArrayList<>();
+    private DashboardRecyclerAdapter mAdapter;
     ArrayAdapter<CharSequence> arrayAdapter;
     private SQLiteDatabase sqLiteDatabase;
     private Orientation mOrientation;
     Menu menu;
     String token, customer_id ;
-    private ProgressDialog pDialog;
     ProgressBar progressBar;
     TextView textView;
     Calendar calendar;
     Double speedDouble = 0.0;
-    ClusterManager<MyItem> mClusterManager ;
+    ClusterManager<ItemCluster> mClusterManager ;
     private VehicleListLoadingTask vehicleListLoadingTask = null;
-    private Marker mCurrentSelectedMarker;
     String startPosition = "";
-    ActivityListItems activityItems;
-    String location = "NA";
+    DashboardRecyclerItems activityItems;
     RecyclerView recyclerView ;
     LinearLayoutManager linearLayoutManager ;
     MenuItem menuItem ;
@@ -112,6 +101,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         initializeMap();
     }
 
+    ///////////////////////////////////Initializing the Google Map/////////////////////////////////
     private void initializeMap() {
         // boolean mapsSupported = true;
         if (googleMap == null) {
@@ -137,14 +127,15 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         fab.setVisibility(View.INVISIBLE);
 
         ((DashBoard) getActivity())
-                .setActionBarTitle("All Vehicles");
+                .setActionBarTitle("Dashboard");
 
         deletePreviousData();
         createDatabase();
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-//        linearLayoutManager.setStackFromEnd(true);
 
         textView = (TextView) mView.findViewById(R.id.textView_company_name);
+
+        /////////////////////////////// Here token is assigned the value//////////////////////////////////
 
 //        token = getActivity().getIntent().getExtras().getString("Token");
 //        assert token != null;
@@ -191,14 +182,16 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
 
         // prepareData();
+
+
         recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
-        final Context mContext = getActivity().getApplicationContext();
-        mAdapter = new ActivityListAdapter(activityList, getActivity());
+        mAdapter = new DashboardRecyclerAdapter(activityList, getActivity());
         recyclerView.setLayoutManager(getLinearLayoutManager());
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
 
+        ////////////////////////////// Filter using Spinner //////////////////////////////////////////////////
         final Spinner spinner = (Spinner) mView.findViewById(R.id.select_status);
         arrayAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.vehicle_status, android.R.layout.simple_spinner_item);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -212,7 +205,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                 String query4 = "SELECT * FROM vehicle_list WHERE status = 'offline'";
 
                 String selectedItem = parent.getItemAtPosition(position).toString();
-                ActivityListItems activityItems;
+                DashboardRecyclerItems activityItems;
                 switch (selectedItem) {
                     case "All Vehicles": {
                         activityList.clear();
@@ -227,13 +220,13 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                                 String startTime = c.getString(3);
                                 String status = c.getString(4);
                                 String speed = c.getString(5);
-                                activityItems = new ActivityListItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
+                                activityItems = new DashboardRecyclerItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
                                 activityList.add(activityItems);
 
                             }
                             while (c.moveToNext());
                             RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
-                            mAdapter = new ActivityListAdapter(activityList, getActivity());
+                            mAdapter = new DashboardRecyclerAdapter(activityList, getActivity());
                             recyclerView.setLayoutManager(getLinearLayoutManager());
                             recyclerView.setItemAnimator(new DefaultItemAnimator());
                             recyclerView.setAdapter(mAdapter);
@@ -256,12 +249,12 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                                 String startTime = c.getString(3);
                                 String status = c.getString(4);
                                 String speed = c.getString(5);
-                                activityItems = new ActivityListItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
+                                activityItems = new DashboardRecyclerItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
                                 activityList.add(activityItems);
 
                             } while (c.moveToNext());
                             RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
-                            mAdapter = new ActivityListAdapter(activityList, getActivity());
+                            mAdapter = new DashboardRecyclerAdapter(activityList, getActivity());
                             recyclerView.setLayoutManager(getLinearLayoutManager());
                             recyclerView.setItemAnimator(new DefaultItemAnimator());
                             recyclerView.setAdapter(mAdapter);
@@ -285,12 +278,12 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                                 String startTime = c.getString(3);
                                 String status = c.getString(4);
                                 String speed = c.getString(5);
-                                activityItems = new ActivityListItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
+                                activityItems = new DashboardRecyclerItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
                                 activityList.add(activityItems);
 
                             } while (c.moveToNext());
                             RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
-                            mAdapter = new ActivityListAdapter(activityList, getActivity());
+                            mAdapter = new DashboardRecyclerAdapter(activityList, getActivity());
                             recyclerView.setLayoutManager(getLinearLayoutManager());
                             recyclerView.setItemAnimator(new DefaultItemAnimator());
                             recyclerView.setAdapter(mAdapter);
@@ -314,12 +307,12 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                                 String startTime = c.getString(3);
                                 String status = c.getString(4);
                                 String speed = c.getString(5);
-                                activityItems = new ActivityListItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
+                                activityItems = new DashboardRecyclerItems(vehicleRegNo, speed, startTime, location, status, "", vtsDeviceId);
                                 activityList.add(activityItems);
 
                             } while (c.moveToNext());
                             RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.recyclerView2);
-                            mAdapter = new ActivityListAdapter(activityList, getActivity());
+                            mAdapter = new DashboardRecyclerAdapter(activityList, getActivity());
                             recyclerView.setLayoutManager(getLinearLayoutManager());
                             recyclerView.setItemAnimator(new DefaultItemAnimator());
                             recyclerView.setAdapter(mAdapter);
@@ -338,6 +331,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
             }
         });
 
+        //////////////////////////////// Switch from list to map or map to list////////////////////////////
         Switch mySwitch = (Switch) mView.findViewById(R.id.switch1);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -369,6 +363,13 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         return view;
     }
 
+    // Function to decode the token
+    private static String getJson(String strEncoded) throws UnsupportedEncodingException {
+        byte[] decodedBytes = Base64.decode(strEncoded, Base64.URL_SAFE);
+        return new String(decodedBytes, "UTF-8");
+    }
+
+    //Decoding the lat long into address
     private class VehicleListLoadingTask extends AsyncTask<String, Void, String> {
         private  double[] latArray , longArray ;
 
@@ -434,17 +435,14 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
         }
     }
 
-    private static String getJson(String strEncoded) throws UnsupportedEncodingException {
-        byte[] decodedBytes = Base64.decode(strEncoded, Base64.URL_SAFE);
-        return new String(decodedBytes, "UTF-8");
-    }
+
 
     private void makeJsonObjectRequest(String customer_id) {
         showpProgress();
         final String[] speed = {"0"};
         final String[] netDateTime = {"NA"};
         final String[] status = {"NA"};
-        final MyItem[] offsetItem = {null};
+        final ItemCluster[] offsetItem = {null};
         final int[] index = {0};
 
         //String urlJsonArray = "http://35.189.189.215:8094/dashboard?customerId="+customer_id;
@@ -460,7 +458,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
 
                 try {
 
-                    mClusterManager = new ClusterManager<MyItem>(getActivity(), googleMap);
+                    mClusterManager = new ClusterManager<>(getActivity(), googleMap);
                     for (int i = 0; i <= response.length(); i++) {
                         org.json.JSONObject vehicleDetails = (org.json.JSONObject) response.get(i);
                         final String vehicle_Id = vehicleDetails.get("vehicleRegistrationNumber").toString();
@@ -493,7 +491,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                             final Double lat = vehicleDetails.getDouble("latitude");
                             final Double lng = vehicleDetails.getDouble("longitude");
 
-                            offsetItem[0] = new MyItem(lat, lng);
+                            offsetItem[0] = new ItemCluster(lat, lng);
                             mClusterManager.addItem(offsetItem[0]);
 
                             int current_status = (int) vehicleDetails.get("state");
@@ -539,7 +537,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                             speed[0] = vehicleDetails.get("speed").toString();
                             speedDouble = Math.round(Double.parseDouble(speed[0]) * 100.0) / 100.0;
 
-                            activityItems = new ActivityListItems(vehicle_Id, String.valueOf(speedDouble) + " m/s", netDateTime[0], "Loading location" , status[0], "", vtsDeviceId);
+                            activityItems = new DashboardRecyclerItems(vehicle_Id, String.valueOf(speedDouble) + " m/s", netDateTime[0], "Loading location" , status[0], "", vtsDeviceId);
                             activityList.add(activityItems);
 
                             insertIntoDB2(vehicle_Id, vtsDeviceId, "Loading", netDateTime[0] , status[0] ,
@@ -554,7 +552,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                         } else {
                             speedDouble = 0.0 ;
                             insertIntoDB2(vehicle_Id, vtsDeviceId, "N-A-", "N-A-", "offline", "N-A-", "", "");
-                            activityItems = new ActivityListItems(vehicle_Id, "N-A-", "N-A-", "N-A-", "offline", "", vtsDeviceId);
+                            activityItems = new DashboardRecyclerItems(vehicle_Id, "N-A-", "N-A-", "N-A-", "offline", "", vtsDeviceId);
                             activityList.add(activityItems);
 
                         }
@@ -569,7 +567,7 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                 vehicleListLoadingTask = new VehicleListLoadingTask(latArray,longArray);
                 vehicleListLoadingTask.execute((String) null);
 
-                mAdapter = new ActivityListAdapter(activityList, getActivity());
+                mAdapter = new DashboardRecyclerAdapter(activityList, getActivity());
                 recyclerView.setLayoutManager(linearLayoutManager);
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(mAdapter);
@@ -578,9 +576,9 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
                 googleMap.setInfoWindowAdapter(new MyCustomAdapterForItems());
                 new OwnIconRendered(getActivity(),googleMap,mClusterManager);
 //                mClusterManager.getMarkerManager().
-//                mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<MyItem>() {
+//                mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<ItemCluster>() {
 //                    @Override
-//                    public boolean onClusterItemClick(MyItem myItem) {
+//                    public boolean onClusterItemClick(ItemCluster myItem) {
 //
 //                        Cursor markerCursor = sqLiteDatabase.rawQuery(query, null);
 //                        markerCursor.moveToFirst();
@@ -759,8 +757,8 @@ public class DashMainFragment extends DialogFragment implements SearchView.OnQue
     @Override
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
-        ArrayList<ActivityListItems> newList = new ArrayList<>();
-        for (ActivityListItems activityListItems : activityList) {
+        ArrayList<DashboardRecyclerItems> newList = new ArrayList<>();
+        for (DashboardRecyclerItems activityListItems : activityList) {
             String vehicleName = activityListItems.getTitle().toLowerCase();
             if (vehicleName.contains(newText)) {
                 newList.add(activityListItems);
